@@ -1,0 +1,159 @@
+"""
+System-wide enumeration types, default constants, and domain status codes.
+"""
+
+from enum import Enum, unique
+
+@unique
+class UserRole(str, Enum):
+    ADMIN = "ADMIN"
+    LIBRARIAN = "LIBRARIAN"
+    MEMBER = "MEMBER"
+
+    @classmethod
+    def list_all(cls):
+        return [role.value for role in cls]
+
+    @classmethod
+    def has_role(cls, role_str: str) -> bool:
+        return role_str.upper() in cls._value2member_map_
+
+@unique
+class UserStatus(str, Enum):
+    ACTIVE = "ACTIVE"
+    INACTIVE = "INACTIVE"
+    SUSPENDED = "SUSPENDED"
+    LOCKED = "LOCKED"
+    PENDING_VERIFICATION = "PENDING_VERIFICATION"
+
+@unique
+class MembershipType(str, Enum):
+    STUDENT = "STUDENT"
+    FACULTY = "FACULTY"
+    STAFF = "STAFF"
+    GENERAL = "GENERAL"
+
+@unique
+class MembershipStatus(str, Enum):
+    ACTIVE = "ACTIVE"
+    EXPIRED = "EXPIRED"
+    SUSPENDED = "SUSPENDED"
+    CANCELLED = "CANCELLED"
+
+@unique
+class BookCopyStatus(str, Enum):
+    AVAILABLE = "AVAILABLE"
+    ISSUED = "ISSUED"
+    RESERVED = "RESERVED"
+    DAMAGED = "DAMAGED"
+    LOST = "LOST"
+    IN_MAINTENANCE = "IN_MAINTENANCE"
+    WITHDRAWN = "WITHDRAWN"
+
+@unique
+class BookCopyCondition(str, Enum):
+    NEW = "NEW"
+    EXCELLENT = "EXCELLENT"
+    GOOD = "GOOD"
+    FAIR = "FAIR"
+    POOR = "POOR"
+    DAMAGED = "DAMAGED"
+
+@unique
+class BorrowingStatus(str, Enum):
+    ACTIVE = "ACTIVE"
+    RETURNED = "RETURNED"
+    OVERDUE = "OVERDUE"
+    LOST_CLAIMED = "LOST_CLAIMED"
+
+@unique
+class ReservationStatus(str, Enum):
+    PENDING = "PENDING"
+    READY_FOR_PICKUP = "READY_FOR_PICKUP"
+    FULFILLED = "FULFILLED"
+    CANCELLED = "CANCELLED"
+    EXPIRED = "EXPIRED"
+
+@unique
+class FineType(str, Enum):
+    OVERDUE = "OVERDUE"
+    LOST_BOOK = "LOST_BOOK"
+    DAMAGED_BOOK = "DAMAGED_BOOK"
+    PROCESSING_FEE = "PROCESSING_FEE"
+    OTHER_PENALTY = "OTHER_PENALTY"
+
+@unique
+class FineStatus(str, Enum):
+    UNPAID = "UNPAID"
+    PAID = "PAID"
+    PARTIALLY_PAID = "PARTIALLY_PAID"
+    WAIVED = "WAIVED"
+    DISPUTED = "DISPUTED"
+
+@unique
+class PaymentMethod(str, Enum):
+    CASH = "CASH"
+    CREDIT_CARD = "CREDIT_CARD"
+    DEBIT_CARD = "DEBIT_CARD"
+    UPI = "UPI"
+    BANK_TRANSFER = "BANK_TRANSFER"
+    INTERNAL_CREDIT = "INTERNAL_CREDIT"
+
+@unique
+class NotificationType(str, Enum):
+    BOOK_DUE_REMINDER = "BOOK_DUE_REMINDER"
+    OVERDUE_ALERT = "OVERDUE_ALERT"
+    RESERVATION_AVAILABLE = "RESERVATION_AVAILABLE"
+    MEMBERSHIP_EXPIRING = "MEMBERSHIP_EXPIRING"
+    FINE_GENERATED = "FINE_GENERATED"
+    PAYMENT_CONFIRMATION = "PAYMENT_CONFIRMATION"
+    BOOK_RETURN_RECEIPT = "BOOK_RETURN_RECEIPT"
+    GENERAL_ANNOUNCEMENT = "GENERAL_ANNOUNCEMENT"
+
+@unique
+class AnnouncementPriority(str, Enum):
+    LOW = "LOW"
+    NORMAL = "NORMAL"
+    HIGH = "HIGH"
+    CRITICAL = "CRITICAL"
+
+@unique
+class AuditAction(str, Enum):
+    LOGIN = "LOGIN"
+    LOGOUT = "LOGOUT"
+    FAILED_LOGIN = "FAILED_LOGIN"
+    USER_CREATE = "USER_CREATE"
+    USER_UPDATE = "USER_UPDATE"
+    USER_DELETE = "USER_DELETE"
+    USER_STATUS_CHANGE = "USER_STATUS_CHANGE"
+    ROLE_CHANGE = "ROLE_CHANGE"
+    PASSWORD_CHANGE = "PASSWORD_CHANGE"
+    BOOK_CREATE = "BOOK_CREATE"
+    BOOK_UPDATE = "BOOK_UPDATE"
+    BOOK_DELETE = "BOOK_DELETE"
+    COPY_CREATE = "COPY_CREATE"
+    COPY_UPDATE = "COPY_UPDATE"
+    COPY_STATUS_CHANGE = "COPY_STATUS_CHANGE"
+    BOOK_ISSUE = "BOOK_ISSUE"
+    BOOK_RETURN = "BOOK_RETURN"
+    BOOK_RENEW = "BOOK_RENEW"
+    RESERVATION_CREATE = "RESERVATION_CREATE"
+    RESERVATION_CANCEL = "RESERVATION_CANCEL"
+    RESERVATION_FULFILL = "RESERVATION_FULFILL"
+    FINE_CREATE = "FINE_CREATE"
+    FINE_PAYMENT = "FINE_PAYMENT"
+    FINE_WAIVE = "FINE_WAIVE"
+    ANNOUNCEMENT_CREATE = "ANNOUNCEMENT_CREATE"
+    SETTING_UPDATE = "SETTING_UPDATE"
+
+# System defaults
+DEFAULT_PAGE_SIZE = 20
+MAX_PAGE_SIZE = 100
+DEFAULT_SESSION_TIMEOUT_MINUTES = 60
+MAX_FAILED_LOGIN_ATTEMPTS = 5
+LOCKOUT_DURATION_MINUTES = 15
+DEFAULT_PASSWORD_MIN_LENGTH = 8
+DEFAULT_FINE_PER_DAY = 10.0
+DEFAULT_MAX_RENEWALS = 2
+DEFAULT_LOAN_PERIOD_DAYS = 14
+DEFAULT_RESERVATION_EXPIRY_DAYS = 3
