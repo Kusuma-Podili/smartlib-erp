@@ -36,6 +36,8 @@ class MemberService:
         # Create or link user account for Member portal login
         user_password = dto.password or "Member@123"
         username = clean_email.split("@")[0].lower()
+        if len(username) < 3:
+            username = f"user_{username}"
         # Guarantee unique username
         existing_user = self.user_service.repo.get_by_username(username)
         if existing_user:
