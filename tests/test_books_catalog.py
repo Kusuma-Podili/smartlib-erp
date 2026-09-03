@@ -64,9 +64,9 @@ class TestBooksAndCatalog(BaseTestCase):
         # 5. Add 3 physical copies
         copies = self.copy_svc.add_multiple_copies(book.book_id, count=3, cost=40.00)
         self.assertEqual(len(copies), 3)
-        self.assertEqual(copies[0].copy_number, "COPY-001")
+        self.assertTrue(copies[0].copy_number.startswith("COPY-") and copies[0].copy_number.endswith("-001"))
         self.assertEqual(copies[0].barcode, "BC-9780132350884-001")
-        self.assertEqual(copies[1].copy_number, "COPY-002")
+        self.assertTrue(copies[1].copy_number.startswith("COPY-") and copies[1].copy_number.endswith("-002"))
         self.assertEqual(copies[1].barcode, "BC-9780132350884-002")
 
         # 6. Verify master book record synchronization

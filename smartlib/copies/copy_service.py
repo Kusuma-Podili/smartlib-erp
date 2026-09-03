@@ -26,7 +26,7 @@ class CopyService:
 
         next_idx = self.copy_repo.get_next_copy_index(dto.book_id)
         barcode = BarcodeGenerator.generate_barcode(book.isbn, next_idx)
-        copy_num = BarcodeGenerator.generate_copy_number(next_idx)
+        copy_num = BarcodeGenerator.generate_copy_number(next_idx, book_id=dto.book_id)
 
         copy = BookCopy(
             book_id=dto.book_id,

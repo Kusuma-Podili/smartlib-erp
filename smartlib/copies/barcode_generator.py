@@ -8,5 +8,5 @@ class BarcodeGenerator:
         return f"BC-{clean_isbn}-{copy_index:03d}"
 
     @staticmethod
-    def generate_copy_number(copy_index: int) -> str:
-        return f"COPY-{copy_index:03d}"
+    def generate_copy_number(copy_index: int, book_id: int = 1) -> str:
+        return f"COPY-B{book_id}-{copy_index:03d}"
