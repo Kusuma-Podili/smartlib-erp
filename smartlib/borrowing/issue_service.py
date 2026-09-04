@@ -35,6 +35,7 @@ class IssueService:
         audit_svc: Optional[AuditService] = None
     ):
         self.borrow_repo = borrow_repo or BorrowingRepository()
+        self.repo = self.borrow_repo
         self.member_repo = member_repo or MemberRepository()
         self.tier_repo = tier_repo or MembershipTierRepository()
         self.book_repo = book_repo or BookRepository()

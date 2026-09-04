@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Book Inventory - SmartLibrary ERP</title>
+</head>
+<body>
+<div th:replace="~{layout/base :: div}" th:with="pageTitle='Book Catalog & Inventory', activeMenu='admin-books'">
+    <div th:fragment="content">
+        <!-- Action Header -->
+        <div class="d-flex justify-between align-center mb-3">
+            <h2 style="font-size: 1.25rem; font-weight: 600;">Cataloged Book Titles</h2>
+            <a th:href="@{/admin/books/new}" class="btn btn-primary">
+                <i class="fa-solid fa-plus"></i> Catalog New Book Title
+            </a>
+        </div>
+
+        <!-- Search & Filter Card -->
+        <div class="card mb-3">
+            <div class="card-body">
+                <form th:action="@{/admin/books}" method="get" class="d-flex gap-2" style="flex-wrap: wrap;">
+                    <div style="flex: 2; min-width: 200px;">
+                        <input type="text" name="keyword" th:value="${keyword}" class="form-control"
+                               placeholder="Search by title, ISBN, or subtitle...">
+                    </div>
+                    <div style="flex: 1; min-width: 160px;">
+                        <select name="categoryId" class="form-control">
+                            <option value="">All Categories</option>
+                            <option th:each="cat : ${categories}" th:value="${cat.id}"
+                                    th:text="${cat.name}" th:selected="${cat.id == categoryId}">Category</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-magnifying-glass"></i> Filter</button>
+                    <a th:href="@{/admin/books}" class="btn btn-secondary"><i class="fa-solid fa-rotate-left"></i> Reset</a>
+                </form>
+            </div>
+        </div>
+
+        <!-- Book Table Card -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">Book Records (<span th:text="${totalElements}">0</span> total)</div>
+            </div>
+            <div class="table-responsive">
+                <table class="erp-table">
+                    <thead>
+                    <tr>
+                        <th>ISBN</th>
+                        <th>Title & Subtitle</th>
+                        <th>Author(s)</th>
+                        <th>Category</th>
+                        <th>Shelf/Rack</th>
+                        <th>Copies (Avail/Total)</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:if="${#lists.isEmpty(books)}">
+                        <td colspan="8" style="text-align: center; color: #94a3b8; padding: 2rem;">
+                            <i class="fa-solid fa-inbox" style="font-size: 2rem; display: block; margin-bottom: 0.5rem;"></i>
+                            No book titles found matching criteria.
+                        </td>
+                    </tr>
+                    <tr th:each="book : ${books}">
+                        <td><code th:text="${book.isbn}">978-0132350884</code></td>
+                        <td>
+                            <strong th:text="${book.title}">Clean Code</strong>
+                            <div th:if="${book.subtitle}" style="font-size: 0.75rem; color: #64748b;" th:text="${book.subtitle}"></div>
+                        </td>
+                        <td th:text="${book.getAuthorsFormatted()}">Robert C. Martin</td>
+                        <td><span class="badge badge-info" th:text="${book.category?.name}">Software</span></td>
+                        <td th:text="${(book.shelfNumber != null ? book.shelfNumber : '-') + ' / ' + (book.rackNumber != null ? book.rackNumber : '-')}">S-1 / R-2</td>
+                        <td>
+                            <span class="badge badge-success" th:text="${book.getAvailableCopiesCount() + ' Avail'}">3 Avail</span>
+                            <span style="font-size: 0.8rem; color: #64748b;" th:text="${'/ ' + book.getTotalCopiesCount()}">/ 5</span>
+                        </td>
+                        <td>
+                            <span class="badge" th:classappend="${book.status.name() == 'ACTIVE' ? 'badge-success' : 'badge-danger'}"
+                                  th:text="${book.status}">ACTIVE</span>
+                        </td>
+                        <td>
+                            <div class="d-flex gap-2">
+                                <a th:href="@{'/admin/books/' + ${book.id}}" class="btn btn-secondary btn-sm" title="View Details & Copies">
+                                    <i class="fa-solid fa-eye"></i> View
+                                </a>
+                                <a th:href="@{'/admin/books/' + ${book.id} + '/edit'}" class="btn btn-secondary btn-sm" title="Edit Book">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

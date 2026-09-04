@@ -7,14 +7,14 @@ from smartlib.copies.models import BookCopyDTO
 from smartlib.users.models import UserDTO
 
 ADMIN_MENU = [
-    ("overview", "Overview", "&#128202;", "/admin/dashboard?tab=overview"),
-    ("books", "Book Management", "&#128218;", "/admin/dashboard?tab=books"),
-    ("users", "User Management", "&#128101;", "/admin/dashboard?tab=users"),
-    ("operations", "Library Operations", "&#128214;", "/admin/dashboard?tab=operations"),
-    ("reports", "Reports & Analytics", "&#128200;", "/admin/dashboard?tab=reports"),
-    ("announcements", "Announcements", "&#128276;", "/admin/dashboard?tab=announcements"),
-    ("settings", "Settings", "&#9881;", "/admin/dashboard?tab=settings"),
-    ("audits", "Audit Logs", "&#128221;", "/admin/dashboard?tab=audits"),
+    ("overview", "Overview", "", "/admin/dashboard?tab=overview"),
+    ("books", "Book Management", "", "/admin/dashboard?tab=books"),
+    ("users", "User Management", "", "/admin/dashboard?tab=users"),
+    ("operations", "Library Operations", "", "/admin/dashboard?tab=operations"),
+    ("reports", "Reports & Analytics", "", "/admin/dashboard?tab=reports"),
+    ("announcements", "Announcements", "", "/admin/dashboard?tab=announcements"),
+    ("settings", "Settings", "", "/admin/dashboard?tab=settings"),
+    ("audits", "Audit Logs", "", "/admin/dashboard?tab=audits"),
 ]
 
 class AdminViews:
@@ -137,7 +137,7 @@ class AdminViews:
         elif tab == "books": content = self.render_books(query)
         elif tab == "users": content = self.render_users()
         elif tab == "operations": content = self.render_operations()
-        elif tab == "reports": content = self.render_reports()
+        elif tab == "reports": content = self.render_reports(query)
         elif tab == "announcements": content = self.render_announcements()
         elif tab == "settings": content = self.render_settings()
         elif tab == "audits": content = self.render_audits()
@@ -173,8 +173,8 @@ class AdminViews:
         <div class="grid-4">
             <div class="kpi-card"><div class="kpi-title">Available Books</div><div class="kpi-value" style="color:var(--success);">{k['available_copies']}</div></div>
             <div class="kpi-card"><div class="kpi-title">Overdue Books</div><div class="kpi-value" style="color:var(--danger);">{k['overdue_books']}</div></div>
-            <div class="kpi-card"><div class="kpi-title">Total Fines</div><div class="kpi-value">${k['total_fines']:.2f}</div></div>
-            <div class="kpi-card"><div class="kpi-title">Collected Revenue</div><div class="kpi-value" style="color:var(--success);">${k['collected_fines']:.2f}</div></div>
+            <div class="kpi-card"><div class="kpi-title">Total Fines</div><div class="kpi-value">₹{k['total_fines']:.2f}</div></div>
+            <div class="kpi-card"><div class="kpi-title">Collected Revenue</div><div class="kpi-value" style="color:var(--success);">₹{k['collected_fines']:.2f}</div></div>
         </div>
         <div class="card">
             <h2>Most Popular Books</h2>
@@ -198,7 +198,7 @@ class AdminViews:
         pub_opts = "".join(f"<option value='{p.publisher_id}'>{p.name}</option>" for p in publishers)
         book_select_opts = "".join(f"<option value='{b.book_id}'>{b.title}</option>" for b in books)
 
-        rows = "".join(f"<tr><td><code>{b.isbn}</code></td><td><strong>{b.title}</strong></td><td>{b.author_name or '-'}</td><td>{b.category_name or '-'}</td><td>Shelf {b.shelf_number}</td><td>{b.total_copies}</td><td><span class='badge badge-avail'>{b.available_copies}</span></td><td>${b.price:.2f}</td></tr>" for b in books)
+        rows = "".join(f"<tr><td><code>{b.isbn}</code></td><td><strong>{b.title}</strong></td><td>{b.author_name or '-'}</td><td>{b.category_name or '-'}</td><td>Shelf {b.shelf_number}</td><td>{b.total_copies}</td><td><span class='badge badge-avail'>{b.available_copies}</span></td><td>₹{b.price:.2f}</td></tr>" for b in books)
 
         return f'''
         <div class="header-row"><h1>Book Management</h1></div>
@@ -217,7 +217,7 @@ class AdminViews:
                     <div class="form-group"><label>Category *</label><select name="category_id">{cat_opts}</select></div>
                 </div>
                 <div class="form-grid">
-                    <div class="form-group"><label>Price ($) *</label><input type="number" step="0.01" name="price" value="45.00"></div>
+                    <div class="form-group"><label>Price (₹) *</label><input type="number" step="0.01" name="price" value="45.00"></div>
                     <div class="form-group"><label>Physical Copies *</label><input type="number" name="copies_count" value="2" min="1" max="20"></div>
                     <div class="form-group"><label>Shelf</label><input type="text" name="shelf_number" value="A1"></div>
                     <div class="form-group"><label>Rack</label><input type="text" name="rack_number" value="R1"></div>
@@ -252,7 +252,7 @@ class AdminViews:
             <form method="POST" action="/admin/dashboard" style="display:flex;gap:1rem;align-items:flex-end;">
                 <input type="hidden" name="action" value="add_copy">
                 <div class="form-group" style="flex:1;"><label>Select Book Title</label><select name="book_id">{book_select_opts}</select></div>
-                <div class="form-group" style="width:150px;"><label>Unit Cost ($)</label><input type="number" step="0.50" name="cost" value="40.00"></div>
+                <div class="form-group" style="width:150px;"><label>Unit Cost (₹)</label><input type="number" step="0.50" name="cost" value="40.00"></div>
                 <button type="submit" class="btn btn-success" style="margin-bottom:0.85rem;">+ Add Physical Copy</button>
             </form>
         </div>
@@ -343,7 +343,7 @@ class AdminViews:
 
         loan_rows = "".join(f"<tr><td>#{l.borrowing_id}</td><td><strong>{l.book_title}</strong></td><td><code>{l.barcode}</code></td><td>{l.member_name} ({l.member_code})</td><td>{l.issue_date}</td><td><strong>{l.due_date}</strong></td><td><span class='badge badge-{'overdue' if l.is_overdue() else 'issued'}'>{l.status}</span></td></tr>" for l in active)
         res_rows = "".join(f"<tr><td>#{r['reservation_id']}</td><td><strong>{r['book_title']}</strong></td><td>{r['member_name']} ({r['member_code']})</td><td>Queue #{r['queue_position']}</td><td><span class='badge badge-pending'>{r['status']}</span></td></tr>" for r in reservations)
-        fine_rows = "".join(f"<tr><td>#{f['fine_id']}</td><td>{f['member_name']}</td><td>{f['fine_type']}</td><td>${f['amount']:.2f}</td><td>${f['paid_amount']:.2f}</td><td><strong style='color:var(--danger);'>${f['balance_amount']:.2f}</strong></td><td><span class='badge badge-{'avail' if f['status'] == 'PAID' else 'overdue'}'>{f['status']}</span></td></tr>" for f in fines)
+        fine_rows = "".join(f"<tr><td>#{f['fine_id']}</td><td>{f['member_name']}</td><td>{f['fine_type']}</td><td>₹{f['amount']:.2f}</td><td>₹{f['paid_amount']:.2f}</td><td><strong style='color:var(--danger);'>₹{f['balance_amount']:.2f}</strong></td><td><span class='badge badge-{'avail' if f['status'] == 'PAID' else 'overdue'}'>{f['status']}</span></td></tr>" for f in fines)
 
         return f'''
         <div class="header-row"><h1>Library Operations & Circulation Logs</h1></div>
@@ -361,25 +361,9 @@ class AdminViews:
         </div>
         '''
 
-    def render_reports(self):
-        inv = self.app.reports.generate_books_inventory_report()
-        od = self.app.reports.generate_overdue_report()
-        fin = self.app.reports.generate_financial_ledger_report()
-        return f'''
-        <div class="header-row"><h1>Reports & Analytics</h1></div>
-        <div class="card">
-            <h2>Book Inventory & Catalog Report</h2>
-            <textarea readonly style="width:100%;height:110px;font-family:monospace;font-size:0.82rem;padding:0.5rem;background:#f8fafc;">{inv['csv']}</textarea>
-        </div>
-        <div class="card">
-            <h2>Overdue Borrowing Report</h2>
-            <textarea readonly style="width:100%;height:110px;font-family:monospace;font-size:0.82rem;padding:0.5rem;background:#f8fafc;">{od['csv']}</textarea>
-        </div>
-        <div class="card">
-            <h2>Fine Collections & Financial Ledger Report</h2>
-            <textarea readonly style="width:100%;height:110px;font-family:monospace;font-size:0.82rem;padding:0.5rem;background:#f8fafc;">{fin['csv']}</textarea>
-        </div>
-        '''
+    def render_reports(self, query=None):
+        from smartlib.web.admin_reports import render_admin_reports_and_analytics
+        return render_admin_reports_and_analytics(self.app, query or {})
 
     def render_announcements(self):
         active = self.app.announce_svc.list_active_announcements()
@@ -415,7 +399,7 @@ class AdminViews:
             <form method="POST" action="/admin/dashboard">
                 <input type="hidden" name="action" value="update_settings">
                 <div class="form-grid">
-                    <div class="form-group"><label>Daily Fine Rate ($)</label><input type="number" step="0.50" name="daily_fine_rate" value="{fine}"></div>
+                    <div class="form-group"><label>Daily Fine Rate (₹)</label><input type="number" step="0.50" name="daily_fine_rate" value="{fine}"></div>
                     <div class="form-group"><label>Max Renewals Limit</label><input type="number" name="max_renewals" value="{ren}"></div>
                     <div class="form-group"><label>Reservation Hold (Days)</label><input type="number" name="hold_days" value="{hold}"></div>
                 </div>

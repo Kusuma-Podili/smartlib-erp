@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Member Dashboard - SmartLibrary ERP</title>
+</head>
+<body>
+<div th:replace="~{layout/base :: div}" th:with="pageTitle='Member Portal Dashboard', activeMenu='mem-dashboard'">
+    <div th:fragment="content">
+        <div class="stat-grid">
+            <div class="stat-card">
+                <div class="stat-info">
+                    <div class="stat-label">Currently Borrowed</div>
+                    <div class="stat-value" th:text="${borrowedCount != null ? borrowedCount : '0'}">0</div>
+                </div>
+                <div class="stat-icon blue"><i class="fa-solid fa-book-reader"></i></div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-info">
+                    <div class="stat-label">Active Reservations</div>
+                    <div class="stat-value" th:text="${reservationCount != null ? reservationCount : '0'}">0</div>
+                </div>
+                <div class="stat-icon purple"><i class="fa-solid fa-bookmark"></i></div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-info">
+                    <div class="stat-label">Outstanding Fine</div>
+                    <div class="stat-value" th:text="${'₹' + (outstandingFine != null ? outstandingFine : '0.00')}">₹0.00</div>
+                </div>
+                <div class="stat-icon red"><i class="fa-solid fa-coins"></i></div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-info">
+                    <div class="stat-label">Borrowing Allowance Left</div>
+                    <div class="stat-value" th:text="${remainingQuota != null ? remainingQuota : '3'}">3</div>
+                </div>
+                <div class="stat-icon green"><i class="fa-solid fa-circle-check"></i></div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <div class="card-title"><i class="fa-solid fa-compass"></i> Explore Library Services</div>
+            </div>
+            <div class="card-body d-flex gap-3">
+                <a th:href="@{/member/catalog}" class="btn btn-primary"><i class="fa-solid fa-magnifying-glass"></i> Search Books & Catalogs</a>
+                <a th:href="@{/member/loans}" class="btn btn-secondary"><i class="fa-solid fa-clock-rotate-left"></i> View Loans & Due Dates</a>
+                <a th:href="@{/member/reservations}" class="btn btn-secondary"><i class="fa-solid fa-list-check"></i> My Hold Queue</a>
+                <a th:href="@{/member/profile}" class="btn btn-secondary"><i class="fa-solid fa-user-gear"></i> Membership Details</a>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

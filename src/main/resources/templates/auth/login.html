@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - SmartLibrary ERP</title>
+    <link rel="stylesheet" th:href="@{/css/erp-theme.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <div class="auth-header">
+            <i class="fa-solid fa-book-open-reader" style="font-size: 2.5rem; color: #1e3a8a; margin-bottom: 0.5rem;"></i>
+            <h1>SmartLibrary ERP</h1>
+            <p>Enterprise Management System</p>
+        </div>
+
+        <!-- Feedback Alerts -->
+        <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}">
+            Invalid credentials.
+        </div>
+        <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}">
+            Logged out successfully.
+        </div>
+
+        <!-- Login Form -->
+        <form th:action="@{/login}" method="post">
+            <div class="form-group">
+                <label class="form-label" for="username">Username or Email</label>
+                <input type="text" id="username" name="username" class="form-control"
+                       placeholder="e.g. admin@library.com" required autofocus>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="password">Password</label>
+                <input type="password" id="password" name="password" class="form-control"
+                       placeholder="••••••••" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 mb-3" style="padding: 0.75rem;">
+                <i class="fa-solid fa-right-to-bracket"></i> Sign In to Portal
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            Don't have an account? <a th:href="@{/register}">Register as Member</a>
+        </div>
+
+        <div style="margin-top: 1.5rem; padding: 0.75rem; background: #f8fafc; border-radius: 6px; font-size: 0.75rem; color: #64748b; border: 1px dashed #cbd5e1;">
+            <strong>Demo Credentials:</strong><br>
+            • Admin: <code>admin@library.com</code> / <code>Admin@123</code><br>
+            • Librarian: <code>librarian@library.com</code> / <code>Librarian@123</code><br>
+            • Member: <code>member@library.com</code> / <code>Member@123</code>
+        </div>
+    </div>
+</div>
+</body>
+</html>

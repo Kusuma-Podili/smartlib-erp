@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>My Borrowed Books - SmartLibrary ERP</title>
+</head>
+<body>
+<div th:replace="~{layout/base :: div}" th:with="pageTitle='My Borrowed Books & Loan History', activeMenu='mem-loans'">
+    <div th:fragment="content">
+        <!-- Active Loans Section -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <div class="card-title"><i class="fa-solid fa-book-reader"></i> Currently Checked Out Books</div>
+            </div>
+            <div class="table-responsive">
+                <table class="erp-table">
+                    <thead>
+                    <tr>
+                        <th>Book Title</th>
+                        <th>Copy Barcode</th>
+                        <th>Issued Date</th>
+                        <th>Due Date</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:if="${#lists.isEmpty(activeLoans)}">
+                        <td colspan="6" style="text-align: center; color: #94a3b8; padding: 2.5rem;">
+                            <i class="fa-solid fa-book-open" style="font-size: 2rem; display: block; margin-bottom: 0.5rem;"></i>
+                            You currently do not have any borrowed books.
+                        </td>
+                    </tr>
+                    <tr th:each="loan : ${activeLoans}">
+                        <td>
+                            <strong th:text="${loan.bookCopy.book.title}">Clean Code</strong>
+                            <div style="font-size: 0.75rem; color: #64748b;" th:text="${loan.bookCopy.book.getAuthorsFormatted()}">Author</div>
+                        </td>
+                        <td><code th:text="${loan.bookCopy.barcode}">BC-001</code></td>
+                        <td th:text="${loan.borrowDate}">2026-09-01</td>
+                        <td>
+                            <strong th:text="${loan.dueDate}">2026-09-15</strong>
+                            <span th:if="${loan.isOverdue()}" class="badge badge-danger" style="margin-left: 0.5rem;">
+                                Overdue by <span th:text="${loan.getDaysOverdue()}">3</span> days!
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge" th:classappend="${loan.isOverdue() ? 'badge-danger' : 'badge-success'}"
+                                  th:text="${loan.isOverdue() ? 'OVERDUE' : 'ISSUED'}">ISSUED</span>
+                        </td>
+                        <td>
+                            <form th:action="@{'/member/loans/' + ${loan.id} + '/renew'}" method="post">
+                                <button type="submit" class="btn btn-secondary btn-sm"
+                                        th:disabled="${loan.renewalCount >= loan.member.membershipType.maxRenewals}">
+                                    <i class="fa-solid fa-arrows-rotate"></i>
+                                    Renew (<span th:text="${loan.renewalCount + '/' + loan.member.membershipType.maxRenewals}">0/2</span>)
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Borrowing History Section -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title"><i class="fa-solid fa-clock-rotate-left"></i> Previous Borrowing Records</div>
+            </div>
+            <div class="table-responsive">
+                <table class="erp-table">
+                    <thead>
+                    <tr>
+                        <th>Book Title</th>
+                        <th>Barcode</th>
+                        <th>Borrowed On</th>
+                        <th>Due Date</th>
+                        <th>Status</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:if="${#lists.isEmpty(history)}">
+                        <td colspan="5" style="text-align: center; color: #94a3b8; padding: 2rem;">No loan history records found.</td>
+                    </tr>
+                    <tr th:each="h : ${history}">
+                        <td><strong th:text="${h.bookCopy.book.title}">Title</strong></td>
+                        <td><code th:text="${h.bookCopy.barcode}">BC-001</code></td>
+                        <td th:text="${h.borrowDate}">2026-08-01</td>
+                        <td th:text="${h.dueDate}">2026-08-15</td>
+                        <td>
+                            <span class="badge" th:classappend="${h.status.name() == 'RETURNED' ? 'badge-info' : 'badge-secondary'}"
+                                  th:text="${h.status}">RETURNED</span>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

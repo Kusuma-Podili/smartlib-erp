@@ -1,0 +1,60 @@
+server:
+  port: 8085
+  servlet:
+    context-path: /
+    session:
+      timeout: 30m
+
+spring:
+  application:
+    name: smartlibrary-erp
+
+  datasource:
+    url: jdbc:h2:file:./data/libryx_db;DB_CLOSE_DELAY=-1;MODE=MySQL
+    username: sa
+    password: 
+    driver-class-name: org.h2.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      idle-timeout: 300000
+      max-lifetime: 600000
+      connection-timeout: 20000
+
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          batch_size: 25
+          order_inserts: true
+          order_updates: true
+
+  thymeleaf:
+    cache: false
+    mode: HTML
+    encoding: UTF-8
+
+  mvc:
+    hiddenmethod:
+      filter:
+        enabled: true
+
+# Application Specific Properties
+app:
+  name: "SmartLibrary ERP"
+  version: "1.0.0"
+  company: "SmartLibrary Enterprise"
+  fine:
+    default-per-day: 10.00
+    grace-period-days: 1
+    lost-multiplier: 2.0
+  borrow:
+    default-duration-days: 14
+    max-renewals: 2
+  notification:
+    due-reminder-days-before: 2

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Member Profile - Circulation Desk - SmartLibrary ERP</title>
+</head>
+<body>
+<div th:replace="~{layout/base :: div}" th:with="pageTitle='Member Profile & Circulation Desk', activeMenu='lib-members'">
+    <div th:fragment="content">
+        <div class="d-flex justify-between align-center mb-3">
+            <a th:href="@{/librarian/members}" class="btn btn-secondary btn-sm"><i class="fa-solid fa-arrow-left"></i> Back to Registry</a>
+            <div class="d-flex gap-2">
+                <a th:href="@{'/librarian/borrow?memberCode=' + ${member.memberCode}}" class="btn btn-primary btn-sm">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i> Issue Book to this Member
+                </a>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-between align-center">
+                    <div>
+                        <h1 style="font-size: 1.4rem; font-weight: 700;" th:text="${member.user.getFullName()}">John Doe</h1>
+                        <p style="color: #64748b;">Member ID: <strong th:text="${member.memberCode}">MEM-2026-0001</strong> • <span th:text="${member.user.email}">john@doe.com</span></p>
+                    </div>
+                    <span class="badge" th:classappend="${member.hasActiveMembership() ? 'badge-success' : 'badge-danger'}"
+                          th:text="${member.hasActiveMembership() ? 'ELIGIBLE TO BORROW' : 'INELIGIBLE / EXPIRED'}">STATUS</span>
+                </div>
+
+                <div class="form-grid-3 mt-2" style="background: #f8fafc; padding: 1.25rem; border-radius: 6px; margin-top: 1rem;">
+                    <div><strong>Membership Tier:</strong> <span class="badge badge-info" th:text="${member.membershipType.name}">Student</span></div>
+                    <div><strong>Borrowing Limit:</strong> <span th:text="${member.membershipType.borrowingLimit + ' books'}">3</span></div>
+                    <div><strong>Loan Duration:</strong> <span th:text="${member.membershipType.borrowDurationDays + ' days'}">14</span></div>
+                    <div><strong>Phone:</strong> <span th:text="${member.user.phone != null ? member.user.phone : '-'}">-</span></div>
+                    <div><strong>Expiry Date:</strong> <span th:text="${activeMembership != null ? activeMembership.expiryDate : 'No Active Membership'}">2027-01-01</span></div>
+                    <div><strong>Account Status:</strong> <span th:text="${member.user.status}">ACTIVE</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Membership Extension Card -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title"><i class="fa-solid fa-calendar-plus"></i> Renew / Extend Membership</div>
+            </div>
+            <div class="card-body">
+                <form th:action="@{'/librarian/members/' + ${member.id} + '/renew'}" method="post" class="d-flex gap-3 align-center">
+                    <div style="flex: 1; max-width: 200px;">
+                        <label class="form-label">Extension Duration</label>
+                        <select name="months" class="form-control">
+                            <option value="6">6 Months</option>
+                            <option value="12" selected>12 Months (1 Year)</option>
+                            <option value="24">24 Months (2 Years)</option>
+                        </select>
+                    </div>
+                    <div style="margin-top: 1.5rem;">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa-solid fa-arrows-rotate"></i> Extend Membership
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

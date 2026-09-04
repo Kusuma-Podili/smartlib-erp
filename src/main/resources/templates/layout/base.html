@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle != null ? pageTitle + ' - SmartLibrary ERP' : 'SmartLibrary ERP'}">SmartLibrary ERP</title>
+    <link rel="stylesheet" th:href="@{/css/erp-theme.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+<div class="app-container">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <a th:href="@{/}" class="sidebar-brand">
+            <i class="fa-solid fa-book-open-reader"></i>
+            <span>SmartLibrary</span> ERP
+        </a>
+
+        <ul class="sidebar-menu">
+            <!-- ADMIN NAVIGATION -->
+            <th:block sec:authorize="hasRole('ADMIN')">
+                <li class="menu-header">Administration</li>
+                <li class="menu-item" th:classappend="${activeMenu == 'admin-dashboard' ? 'active' : ''}">
+                    <a th:href="@{/admin/dashboard}"><i class="fa-solid fa-gauge"></i> Executive Dashboard</a>
+                </li>
+                <li class="menu-item" th:classappend="${activeMenu == 'admin-users' ? 'active' : ''}">
+                    <a th:href="@{/admin/users}"><i class="fa-solid fa-users-gear"></i> User Management</a>
+                </li>
+                <li class="menu-item" th:classappend="${activeMenu == 'admin-librarians' ? 'active' : ''}">
+                    <a th:href="@{/admin/librarians}"><i class="fa-solid fa-user-tie"></i> Librarians</a>
+                </li>
+                <li class="menu-item" th:classappend="${activeMenu == 'admin-members' ? 'active' : ''}">
+                    <a th:href="@{/admin/members}"><i class="fa-solid fa-id-card"></i> Member Accounts</a>
+                </li>
+
+                <li class="menu-header">Catalog Config</li>
+                <li class="menu-item" th:classappend="${activeMenu == 'admin-books' ? 'active' : ''}">
+                    <a th:href="@{/admin/books}"><i class="fa-solid fa-book"></i> Book Inventory</a>
+                </li>
+                <li class="menu-item" th:classappend="${activeMenu == 'admin-categories' ? 'active' : ''}">
+                    <a th:href="@{/admin/categories}"><i class="fa-solid fa-tags"></i> Categories</a>
+                </li>
+                <li class="menu-item" th:classappend="${activeMenu == 'admin-authors' ? 'active' : ''}">
+                    <a th:href="@{/admin/authors}"><i class="fa-solid fa-feather-pointed"></i> Authors</a>
+                </li>
+                <li class="menu-item" th:classappend="${activeMenu == 'admin-publishers' ? 'active' : ''}">
+                    <a th:href="@{/admin/publishers}"><i class="fa-solid fa-building"></i> Publishers</a>
+                </li>
+                <li class="menu-item" th:classappend="${activeMenu == 'admin-membership-types' ? 'active' : ''}">
+                    <a th:href="@{/admin/membership-types}"><i class="fa-solid fa-layer-group"></i> Membership Tiers</a>
+                </li>
+
+                <li class="menu-header">Analytics & System</li>
+                <li class="menu-item" th:classappend="${activeMenu == 'admin-reports' ? 'active' : ''}">
+                    <a th:href="@{/admin/reports}"><i class="fa-solid fa-chart-pie"></i> ERP Reports</a>
+                </li>
+                <li class="menu-item" th:classappend="${activeMenu == 'admin-audit' ? 'active' : ''}">
+                    <a th:href="@{/admin/audit-logs}"><i class="fa-solid fa-shield-halved"></i> Audit Trail</a>
+                </li>
+                <li class="menu-item" th:classappend="${activeMenu == 'admin-settings' ? 'active' : ''}">
+                    <a th:href="@{/admin/settings}"><i class="fa-solid fa-sliders"></i> Library Policies</a>
+                </li>
+            </th:block>
+
+            <!-- LIBRARIAN NAVIGATION -->
+            <th:block sec:authorize="hasRole('LIBRARIAN') and !hasRole('ADMIN')">
+                <li class="menu-header">Circulation Desk</li>
+                <li class="menu-item" th:classappend="${activeMenu == 'lib-dashboard' ? 'active' : ''}">
+                    <a th:href="@{/librarian/dashboard}"><i class="fa-solid fa-desktop"></i> Circulation Desk</a>
+                </li>
+                <li class="menu-item" th:classappend="${activeMenu == 'lib-borrow' ? 'active' : ''}">
+                    <a th:href="@{/librarian/borrow}"><i class="fa-solid fa-arrow-right-from-bracket"></i> Issue Book</a>
+                </li>
+                <li class="menu-item" th:classappend="${activeMenu == 'lib-return' ? 'active' : ''}">
+                    <a th:href="@{/librarian/return}"><i class="fa-solid fa-arrow-right-to-bracket"></i> Return Book</a>
+                </li>
+                <li class="menu-item" th:classappend="${activeMenu == 'lib-reservations' ? 'active' : ''}">
+                    <a th:href="@{/librarian/reservations}"><i class="fa-solid fa-calendar-check"></i> Hold Queue</a>
+                </li>
+                <li class="menu-item" th:classappend="${activeMenu == 'lib-fines' ? 'active' : ''}">
+                    <a th:href="@{/librarian/fines}"><i class="fa-solid fa-receipt"></i> Fines & Cashier</a>
+                </li>
+
+                <li class="menu-header">Catalog & Patron</li>
+                <li class="menu-item" th:classappend="${activeMenu == 'lib-books' ? 'active' : ''}">
+                    <a th:href="@{/librarian/books}"><i class="fa-solid fa-book-bookmark"></i> Manage Books & Copies</a>
+                </li>
+                <li class="menu-item" th:classappend="${activeMenu == 'lib-members' ? 'active' : ''}">
+                    <a th:href="@{/librarian/members}"><i class="fa-solid fa-address-book"></i> Member Registry</a>
+                </li>
+            </th:block>
+
+            <!-- MEMBER NAVIGATION -->
+            <th:block sec:authorize="hasRole('MEMBER') and !hasRole('ADMIN') and !hasRole('LIBRARIAN')">
+                <li class="menu-header">Patron Portal</li>
+                <li class="menu-item" th:classappend="${activeMenu == 'mem-dashboard' ? 'active' : ''}">
+                    <a th:href="@{/member/dashboard}"><i class="fa-solid fa-house"></i> My Dashboard</a>
+                </li>
+                <li class="menu-item" th:classappend="${activeMenu == 'mem-catalog' ? 'active' : ''}">
+                    <a th:href="@{/member/catalog}"><i class="fa-solid fa-magnifying-glass"></i> Search Catalog</a>
+                </li>
+                <li class="menu-item" th:classappend="${activeMenu == 'mem-loans' ? 'active' : ''}">
+                    <a th:href="@{/member/loans}"><i class="fa-solid fa-book-reader"></i> Current Loans & History</a>
+                </li>
+                <li class="menu-item" th:classappend="${activeMenu == 'mem-reservations' ? 'active' : ''}">
+                    <a th:href="@{/member/reservations}"><i class="fa-solid fa-bookmark"></i> My Reservations</a>
+                </li>
+                <li class="menu-item" th:classappend="${activeMenu == 'mem-fines' ? 'active' : ''}">
+                    <a th:href="@{/member/fines}"><i class="fa-solid fa-coins"></i> My Fines & Payments</a>
+                </li>
+                <li class="menu-item" th:classappend="${activeMenu == 'mem-profile' ? 'active' : ''}">
+                    <a th:href="@{/member/profile}"><i class="fa-solid fa-user"></i> Membership Profile</a>
+                </li>
+            </th:block>
+        </ul>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="main-content">
+        <!-- Topbar -->
+        <header class="topbar">
+            <div class="topbar-title" th:text="${pageTitle != null ? pageTitle : 'SmartLibrary ERP'}">
+                Dashboard
+            </div>
+            <div class="topbar-user">
+                <div class="user-badge" sec:authorize="isAuthenticated()">
+                    <span class="user-name" sec:authentication="name">User</span>
+                    <span class="user-role" sec:authentication="principal.authorities[0]">Role</span>
+                </div>
+                <!-- Logout Form -->
+                <form th:action="@{/logout}" method="post" style="display:inline;">
+                    <button type="submit" class="btn btn-secondary btn-sm" title="Sign Out">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i> Logout
+                    </button>
+                </form>
+            </div>
+        </header>
+
+        <!-- Content Body -->
+        <main class="content-body">
+            <!-- Global Flash Messages -->
+            <div th:if="${successMessage}" class="alert alert-success">
+                <span th:text="${successMessage}">Operation completed successfully.</span>
+            </div>
+            <div th:if="${errorMessage}" class="alert alert-danger">
+                <span th:text="${errorMessage}">An error occurred during operation.</span>
+            </div>
+
+            <!-- Page Body Injection -->
+            <div th:replace="~{::content}">
+                <p>Default content placeholder</p>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/erp-app.js}"></script>
+</body>
+</html>

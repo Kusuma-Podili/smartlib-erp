@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Return Book - Circulation Desk - SmartLibrary ERP</title>
+</head>
+<body>
+<div th:replace="~{layout/base :: div}" th:with="pageTitle='Circulation Desk - Return / Checkin Book', activeMenu='lib-return'">
+    <div th:fragment="content">
+        <div class="card" style="max-width: 750px; margin: 0 auto;">
+            <div class="card-header">
+                <div class="card-title"><i class="fa-solid fa-arrow-right-to-bracket"></i> Book Checkin & Inspection Desk</div>
+                <a th:href="@{/librarian/dashboard}" class="btn btn-secondary btn-sm"><i class="fa-solid fa-arrow-left"></i> Dashboard</a>
+            </div>
+            <div class="card-body">
+                <form th:action="@{/librarian/return}" th:object="${returnDto}" method="post">
+                    <div class="form-group">
+                        <label class="form-label">Book Copy Barcode * (e.g. BC-9780132350884-001)</label>
+                        <input type="text" th:field="*{barcode}" class="form-control"
+                               placeholder="Scan returned book barcode..." autofocus required>
+                        <span class="text-danger" th:if="${#fields.hasErrors('barcode')}" th:errors="*{barcode}"></span>
+                    </div>
+
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label class="form-label">Physical Inspection Condition *</label>
+                            <select th:field="*{condition}" class="form-control">
+                                <option value="GOOD">GOOD (Normal Condition)</option>
+                                <option value="NEW">LIKE NEW</option>
+                                <option value="FAIR">FAIR (Minor wear)</option>
+                                <option value="DAMAGED">DAMAGED (Requires fine/repair)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Damage / Missing Part Charge (₹, Optional)</label>
+                            <input type="number" step="1.00" th:field="*{additionalDamageCharge}" class="form-control" placeholder="0.00">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Staff Remarks</label>
+                        <input type="text" th:field="*{remarks}" class="form-control" placeholder="Optional notes on return condition...">
+                    </div>
+
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 1rem; margin-bottom: 1.5rem; font-size: 0.85rem; color: #475569;">
+                        <i class="fa-solid fa-calculator" style="color: #059669;"></i>
+                        <strong>Automatic Calculation:</strong> Late fines are computed according to the patron's tier policy (`late days × fine/day` minus grace days). Damaged items are automatically routed to maintenance, and the reservation queue is notified immediately if the copy is available.
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100" style="padding: 0.75rem;">
+                        <i class="fa-solid fa-arrow-right-to-bracket"></i> Process Return & Update Catalog
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

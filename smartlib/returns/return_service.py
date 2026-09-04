@@ -26,6 +26,7 @@ class ReturnService:
         audit_svc: Optional[AuditService] = None
     ):
         self.return_repo = return_repo or ReturnRepository()
+        self.repo = self.return_repo
         self.borrow_repo = borrow_repo or BorrowingRepository()
         self.copy_repo = copy_repo or CopyRepository()
         self.book_repo = book_repo or BookRepository()

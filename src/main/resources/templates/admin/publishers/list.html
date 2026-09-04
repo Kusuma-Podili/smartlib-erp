@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Publishers - SmartLibrary ERP</title>
+</head>
+<body>
+<div th:replace="~{layout/base :: div}" th:with="pageTitle='Book Publishers Registry', activeMenu='admin-publishers'">
+    <div th:fragment="content">
+        <div class="form-grid-2">
+            <!-- Left: Add Publisher Card -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><i class="fa-solid fa-plus-circle"></i> Register New Publisher</div>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/admin/publishers}" th:object="${publisherDto}" method="post">
+                        <div class="form-group">
+                            <label class="form-label">Publisher Name *</label>
+                            <input type="text" th:field="*{name}" class="form-control" placeholder="Prentice Hall" required>
+                            <span class="text-danger" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></span>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Contact Email</label>
+                            <input type="email" th:field="*{contactEmail}" class="form-control" placeholder="contact@prenticehall.com">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Phone Number</label>
+                            <input type="text" th:field="*{phone}" class="form-control" placeholder="+1-800-555-0199">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Office Address</label>
+                            <input type="text" th:field="*{address}" class="form-control" placeholder="Upper Saddle River, NJ">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Website</label>
+                            <input type="url" th:field="*{website}" class="form-control" placeholder="https://...">
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fa-solid fa-save"></i> Save Publisher
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Right: Existing Publishers Table -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><i class="fa-solid fa-building"></i> Registered Publishers</div>
+                </div>
+                <div class="table-responsive">
+                    <table class="erp-table">
+                        <thead>
+                        <tr>
+                            <th>Publisher Name</th>
+                            <th>Contact Details</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:if="${#lists.isEmpty(publishers)}">
+                            <td colspan="2" style="text-align: center; color: #94a3b8; padding: 2rem;">No publishers registered.</td>
+                        </tr>
+                        <tr th:each="pub : ${publishers}">
+                            <td><strong th:text="${pub.name}">Prentice Hall</strong></td>
+                            <td>
+                                <div th:if="${pub.contactEmail}" style="font-size: 0.8rem; color: #64748b;" th:text="${pub.contactEmail}"></div>
+                                <div th:if="${pub.phone}" style="font-size: 0.8rem; color: #64748b;" th:text="${pub.phone}"></div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

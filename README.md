@@ -187,24 +187,58 @@ The database comes pre-seeded with standard test accounts:
 ## Setup & Installation Instructions
 
 ### Prerequisites
-- Python 3.10 or higher
+- Python 3.10+ (or Poetry 1.8+)
+- Node.js 18+ (optional, for frontend toolchains)
+- Java 17+ & Maven 3.8+ (optional, for enterprise bridge services)
 - Git
 
-### Installation
+### Dependency Manifests & Lockfiles
+The repository contains pinned lockfiles and manifests for reproducible enterprise deployments:
+- **Python**: [`pyproject.toml`](pyproject.toml) & [`poetry.lock`](poetry.lock) (Poetry v2) + [`requirements.txt`](requirements.txt)
+- **Node.js / Frontend**: [`package.json`](package.json) & [`package-lock.json`](package-lock.json) (npm v3)
+- **Java / Enterprise Bridge**: [`pom.xml`](pom.xml) (Apache Maven)
+
+### Installation Methods
+
+#### Method 1: Poetry (Recommended - Uses `poetry.lock`)
 ```bash
-# 1. Clone the repository
+# 1. Clone repository
 git clone https://github.com/Kusuma-Podili/smartlib-erp.git
 cd smartlib-erp
 
-# 2. (Optional) Create and activate a virtual environment
+# 2. Install pinned dependencies from lockfile
+poetry install
+
+# 3. Activate Poetry virtual environment shell
+poetry shell
+```
+
+#### Method 2: Standard Pip (`requirements.txt`)
+```bash
+# 1. Create and activate a virtual environment
 python -m venv venv
 # On Windows:
-.env\Scriptsctivate
+.\venv\Scripts\activate
 # On Linux/macOS:
 source venv/bin/activate
 
-# 3. Install package in editable development mode
+# 2. Install production dependencies
+pip install -r requirements.txt
+
+# 3. Install SmartLib in editable mode
 pip install -e .
+```
+
+#### Method 3: Node.js Client Assets (`package-lock.json`)
+```bash
+# Install pinned UI build and linting tooling
+npm install
+```
+
+#### Method 4: Maven Enterprise Services (`pom.xml`)
+```bash
+# Compile and package enterprise Java bridge modules
+mvn clean package
 ```
 
 ---

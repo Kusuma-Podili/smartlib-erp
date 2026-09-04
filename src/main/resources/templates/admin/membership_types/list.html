@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Membership Tiers & Rules - SmartLibrary ERP</title>
+</head>
+<body>
+<div th:replace="~{layout/base :: div}" th:with="pageTitle='Membership Tiers & Circulation Rules', activeMenu='admin-membership-types'">
+    <div th:fragment="content">
+        <div class="form-grid-2">
+            <!-- Add Tier Form -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><i class="fa-solid fa-plus-circle"></i> Create Membership Tier</div>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/admin/membership-types}" th:object="${typeDto}" method="post">
+                        <div class="form-group">
+                            <label class="form-label">Tier Name *</label>
+                            <input type="text" th:field="*{name}" class="form-control" placeholder="e.g. Research Scholar" required>
+                            <span class="text-danger" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></span>
+                        </div>
+
+                        <div class="form-grid-2">
+                            <div class="form-group">
+                                <label class="form-label">Borrowing Limit (Books) *</label>
+                                <input type="number" min="1" max="50" th:field="*{borrowingLimit}" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Loan Duration (Days) *</label>
+                                <input type="number" min="1" max="180" th:field="*{borrowDurationDays}" class="form-control" required>
+                            </div>
+                        </div>
+
+                        <div class="form-grid-2">
+                            <div class="form-group">
+                                <label class="form-label">Grace Period (Days)</label>
+                                <input type="number" min="0" max="14" th:field="*{gracePeriodDays}" class="form-control" value="0">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Max Allowed Renewals</label>
+                                <input type="number" min="0" max="10" th:field="*{maxRenewals}" class="form-control" value="1">
+                            </div>
+                        </div>
+
+                        <div class="form-grid-2">
+                            <div class="form-group">
+                                <label class="form-label">Overdue Fine (₹ / day) *</label>
+                                <input type="number" step="0.50" th:field="*{finePerDay}" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Annual Fee (₹)</label>
+                                <input type="number" step="1.00" th:field="*{annualFee}" class="form-control" value="0">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Description</label>
+                            <textarea th:field="*{description}" class="form-control" rows="2" placeholder="Tier eligibility criteria..."></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fa-solid fa-save"></i> Save Membership Tier
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Existing Tiers List -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><i class="fa-solid fa-layer-group"></i> Configured Tiers</div>
+                </div>
+                <div class="table-responsive">
+                    <table class="erp-table">
+                        <thead>
+                        <tr>
+                            <th>Tier</th>
+                            <th>Limit</th>
+                            <th>Duration</th>
+                            <th>Fine / Day</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="t : ${types}">
+                            <td>
+                                <strong th:text="${t.name}">Student</strong>
+                                <div th:if="${t.description}" style="font-size: 0.75rem; color: #64748b;" th:text="${t.description}"></div>
+                            </td>
+                            <td><span class="badge badge-info" th:text="${t.borrowingLimit + ' books'}">3 books</span></td>
+                            <td th:text="${t.borrowDurationDays + ' days'}">14 days</td>
+                            <td><strong th:text="${'₹' + t.finePerDay}">₹10.00</strong></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

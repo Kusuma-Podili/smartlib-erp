@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Register Member - Librarian Desk - SmartLibrary ERP</title>
+</head>
+<body>
+<div th:replace="~{layout/base :: div}" th:with="pageTitle='Register New Patron Account', activeMenu='lib-members'">
+    <div th:fragment="content">
+        <div class="card" style="max-width: 800px; margin: 0 auto;">
+            <div class="card-header">
+                <div class="card-title">Circulation Desk - Member Registration</div>
+                <a th:href="@{/librarian/members}" class="btn btn-secondary btn-sm"><i class="fa-solid fa-arrow-left"></i> Back to Registry</a>
+            </div>
+            <div class="card-body">
+                <form th:action="@{/librarian/members}" th:object="${memberDto}" method="post">
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label class="form-label">First Name *</label>
+                            <input type="text" th:field="*{firstName}" class="form-control" required>
+                            <span class="text-danger" th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}"></span>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Last Name *</label>
+                            <input type="text" th:field="*{lastName}" class="form-control" required>
+                            <span class="text-danger" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label class="form-label">Username *</label>
+                            <input type="text" th:field="*{username}" class="form-control" placeholder="e.g. jdoe" required>
+                            <span class="text-danger" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></span>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email Address *</label>
+                            <input type="email" th:field="*{email}" class="form-control" placeholder="jdoe@domain.com" required>
+                            <span class="text-danger" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label class="form-label">Phone Number</label>
+                            <input type="tel" th:field="*{phone}" class="form-control" placeholder="10 digits">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Membership Tier *</label>
+                            <select th:field="*{membershipTypeId}" class="form-control" required>
+                                <option value="">-- Select Tier --</option>
+                                <option th:each="type : ${membershipTypes}" th:value="${type.id}"
+                                        th:text="${type.name + ' (Limit: ' + type.borrowingLimit + ' books, ' + type.borrowDurationDays + ' days)'}">Student</option>
+                            </select>
+                            <span class="text-danger" th:if="${#fields.hasErrors('membershipTypeId')}" th:errors="*{membershipTypeId}"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label class="form-label">Identity Proof Type</label>
+                            <select th:field="*{identityProofType}" class="form-control">
+                                <option value="Student ID">Student ID</option>
+                                <option value="Employee ID">Employee ID</option>
+                                <option value="National ID / Aadhaar">National ID / Aadhaar</option>
+                                <option value="Passport">Passport</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Identity Proof Number</label>
+                            <input type="text" th:field="*{identityProofNumber}" class="form-control" placeholder="ID Number">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Address / Residence</label>
+                        <input type="text" th:field="*{address}" class="form-control">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Initial Password (Optional, defaults to Member@123)</label>
+                        <input type="password" th:field="*{password}" class="form-control" placeholder="Leave empty for default">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa-solid fa-user-check"></i> Register Member & Issue ID
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

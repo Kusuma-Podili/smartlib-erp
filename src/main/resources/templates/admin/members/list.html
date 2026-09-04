@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Member Accounts - SmartLibrary ERP</title>
+</head>
+<body>
+<div th:replace="~{layout/base :: div}" th:with="pageTitle='Member Accounts Administration', activeMenu='admin-members'">
+    <div th:fragment="content">
+        <!-- Search Bar -->
+        <div class="card mb-3">
+            <div class="card-body">
+                <form th:action="@{/admin/members}" method="get" class="d-flex gap-2">
+                    <input type="text" name="query" th:value="${query}" class="form-control"
+                           placeholder="Search by member code, patron name, or email...">
+                    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
+                    <a th:href="@{/admin/members}" class="btn btn-secondary">Reset</a>
+                </form>
+            </div>
+        </div>
+
+        <!-- Members Table -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">Registered Patrons (<span th:text="${totalElements}">0</span> total)</div>
+            </div>
+            <div class="table-responsive">
+                <table class="erp-table">
+                    <thead>
+                    <tr>
+                        <th>Member Code</th>
+                        <th>Name</th>
+                        <th>Email / Phone</th>
+                        <th>Tier</th>
+                        <th>Borrow Limit</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:if="${#lists.isEmpty(members)}">
+                        <td colspan="7" style="text-align: center; color: #94a3b8; padding: 2rem;">No member accounts found.</td>
+                    </tr>
+                    <tr th:each="mem : ${members}">
+                        <td><code th:text="${mem.memberCode}">MEM-2026-0001</code></td>
+                        <td><strong th:text="${mem.user.getFullName()}">John Doe</strong></td>
+                        <td>
+                            <div th:text="${mem.user.email}">john@doe.com</div>
+                            <div th:if="${mem.user.phone}" style="font-size: 0.75rem; color: #64748b;" th:text="${mem.user.phone}"></div>
+                        </td>
+                        <td><span class="badge badge-info" th:text="${mem.membershipType.name}">Student</span></td>
+                        <td th:text="${mem.membershipType.borrowingLimit + ' books'}">3 books</td>
+                        <td>
+                            <span class="badge" th:classappend="${mem.user.isActive() ? 'badge-success' : 'badge-danger'}"
+                                  th:text="${mem.user.status}">ACTIVE</span>
+                        </td>
+                        <td>
+                            <a th:href="@{'/admin/members/' + ${mem.id}}" class="btn btn-secondary btn-sm">
+                                <i class="fa-solid fa-eye"></i> Details
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

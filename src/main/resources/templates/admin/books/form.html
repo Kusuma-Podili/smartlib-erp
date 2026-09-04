@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${isEdit ? 'Edit Book' : 'Catalog New Book'} + ' - SmartLibrary ERP'">Book Form</title>
+</head>
+<body>
+<div th:replace="~{layout/base :: div}" th:with="pageTitle=${isEdit ? 'Edit Book' : 'Catalog New Book Title'}, activeMenu='admin-books'">
+    <div th:fragment="content">
+        <div class="card" style="max-width: 900px; margin: 0 auto;">
+            <div class="card-header">
+                <div class="card-title" th:text="${isEdit ? 'Edit Book Information' : 'Enter New Book Metadata'}">Book Form</div>
+                <a th:href="@{/admin/books}" class="btn btn-secondary btn-sm"><i class="fa-solid fa-arrow-left"></i> Back to Catalog</a>
+            </div>
+            <div class="card-body">
+                <form th:action="${isEdit ? '/admin/books/' + bookDto.id + '/edit' : '/admin/books'}"
+                      th:object="${bookDto}" method="post">
+
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label class="form-label">ISBN (10 or 13 digits) *</label>
+                            <input type="text" th:field="*{isbn}" class="form-control" placeholder="e.g. 9780132350884" required>
+                            <span class="text-danger" th:if="${#fields.hasErrors('isbn')}" th:errors="*{isbn}"></span>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Title *</label>
+                            <input type="text" th:field="*{title}" class="form-control" placeholder="e.g. Clean Code" required>
+                            <span class="text-danger" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label class="form-label">Subtitle</label>
+                            <input type="text" th:field="*{subtitle}" class="form-control" placeholder="A Handbook of Agile Software Craftsmanship">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Edition</label>
+                            <input type="text" th:field="*{edition}" class="form-control" placeholder="1st Edition, Revised">
+                        </div>
+                    </div>
+
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label class="form-label">Category *</label>
+                            <select th:field="*{categoryId}" class="form-control" required>
+                                <option value="">-- Select Category --</option>
+                                <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}">Software</option>
+                            </select>
+                            <span class="text-danger" th:if="${#fields.hasErrors('categoryId')}" th:errors="*{categoryId}"></span>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Publisher *</label>
+                            <select th:field="*{publisherId}" class="form-control" required>
+                                <option value="">-- Select Publisher --</option>
+                                <option th:each="pub : ${publishers}" th:value="${pub.id}" th:text="${pub.name}">Prentice Hall</option>
+                            </select>
+                            <span class="text-danger" th:if="${#fields.hasErrors('publisherId')}" th:errors="*{publisherId}"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Author(s) * (Hold Ctrl/Cmd to select multiple)</label>
+                        <select th:field="*{authorIds}" multiple class="form-control" style="height: 110px;" required>
+                            <option th:each="auth : ${authors}" th:value="${auth.id}" th:text="${auth.getFullName()}">Robert C. Martin</option>
+                        </select>
+                        <span class="text-danger" th:if="${#fields.hasErrors('authorIds')}" th:errors="*{authorIds}"></span>
+                    </div>
+
+                    <div class="form-grid-3">
+                        <div class="form-group">
+                            <label class="form-label">Publication Year</label>
+                            <input type="number" th:field="*{publicationYear}" class="form-control" placeholder="2008">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Language</label>
+                            <input type="text" th:field="*{language}" class="form-control" placeholder="English">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Unit Price (₹)</label>
+                            <input type="number" step="0.01" th:field="*{price}" class="form-control" placeholder="650.00">
+                        </div>
+                    </div>
+
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label class="form-label">Shelf Number</label>
+                            <input type="text" th:field="*{shelfNumber}" class="form-control" placeholder="e.g. Shelf A-3">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Rack Number</label>
+                            <input type="text" th:field="*{rackNumber}" class="form-control" placeholder="e.g. Rack 12">
+                        </div>
+                    </div>
+
+                    <!-- Show initial copies only on new creation -->
+                    <div class="form-group" th:if="${!isEdit}">
+                        <label class="form-label">Initial Copies to Provision *</label>
+                        <input type="number" min="1" max="50" th:field="*{initialCopies}" class="form-control" style="max-width: 200px;" required>
+                        <small style="color: #64748b;">The system will automatically generate unique barcodes for each physical copy.</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Description / Abstract</label>
+                        <textarea th:field="*{description}" class="form-control" rows="3" placeholder="Book synopsis..."></textarea>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa-solid fa-floppy-disk"></i> Save Book Title
+                        </button>
+                        <a th:href="@{/admin/books}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

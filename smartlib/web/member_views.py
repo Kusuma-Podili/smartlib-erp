@@ -5,14 +5,14 @@ from smartlib.books.models import BookFilter
 from smartlib.constants import PaymentMethod
 
 MEMBER_MENU = [
-    ("overview", "Overview", "&#128202;", "/member/dashboard?tab=overview"),
-    ("search", "Search Books", "&#128269;", "/member/dashboard?tab=search"),
-    ("my_books", "My Books", "&#128214;", "/member/dashboard?tab=my_books"),
-    ("reservations", "My Reservations", "&#128278;", "/member/dashboard?tab=reservations"),
-    ("fines", "My Fines", "&#128176;", "/member/dashboard?tab=fines"),
-    ("notifications", "Notifications", "&#128276;", "/member/dashboard?tab=notifications"),
-    ("profile", "My Profile", "&#128100;", "/member/dashboard?tab=profile"),
-    ("announcements", "Announcements", "&#128227;", "/member/dashboard?tab=announcements"),
+    ("overview", "Overview", "", "/member/dashboard?tab=overview"),
+    ("search", "Search Books", "", "/member/dashboard?tab=search"),
+    ("my_books", "My Books", "", "/member/dashboard?tab=my_books"),
+    ("reservations", "My Reservations", "", "/member/dashboard?tab=reservations"),
+    ("fines", "My Fines", "", "/member/dashboard?tab=fines"),
+    ("notifications", "Notifications", "", "/member/dashboard?tab=notifications"),
+    ("profile", "My Profile", "", "/member/dashboard?tab=profile"),
+    ("announcements", "Announcements", "", "/member/dashboard?tab=announcements"),
 ]
 
 class MemberViews:
@@ -45,17 +45,31 @@ class MemberViews:
             # 1. Self-Renewal
             if action == "renew_book":
                 try:
-                    borrowing_id = int(params.get("borrowing_id"))
-                    loan = self.app.renew_svc.renew_loan(borrowing_id=borrowing_id, actor_username=user["username"])
-                    return self.app.redirect(start_response, "/member/dashboard?tab=my_books", f"Renewal successful! New due date: {loan.new_due_date}")
+                    borrowing_id_str = params.get("borrowing_id")
+                    if not borrowing_id_str:
+                        raise Exception("Please select a borrowed item to renew.")
+                    borrowing_id = int(borrowing_id_str)
+                    renewal = self.app.renew_svc.request_renewal(
+                        borrowing_id=borrowing_id,
+                        member_id=member_id,
+                        actor_username=user["username"]
+                    )
+                    return self.app.redirect(start_response, "/member/dashboard?tab=my_books", f"Renewal successful! New due date: {renewal.new_due_date}")
                 except Exception as e:
                     return self.app.redirect(start_response, "/member/dashboard?tab=my_books", str(e), "error")
 
             # 2. Reserve / Hold Book
             elif action == "reserve_book":
                 try:
-                    book_id = int(params.get("book_id"))
-                    hold = self.app.reserve_svc.create_reservation(book_id=book_id, member_id=member_id, actor_username=user["username"])
+                    book_id_str = params.get("book_id")
+                    if not book_id_str:
+                        raise Exception("Please select a book to reserve.")
+                    book_id = int(book_id_str)
+                    hold = self.app.reserve_svc.reserve_book(
+                        book_id=book_id,
+                        member_id=member_id,
+                        actor_username=user["username"]
+                    )
                     return self.app.redirect(start_response, "/member/dashboard?tab=reservations", f"Hold placed! Position #{hold.queue_position}")
                 except Exception as e:
                     return self.app.redirect(start_response, "/member/dashboard?tab=reservations", str(e), "error")
@@ -63,8 +77,15 @@ class MemberViews:
             # 3. Cancel Reservation
             elif action == "cancel_reservation":
                 try:
-                    res_id = int(params.get("reservation_id"))
-                    self.app.reserve_svc.cancel_reservation(reservation_id=res_id, actor_username=user["username"])
+                    res_id_str = params.get("reservation_id")
+                    if not res_id_str:
+                        raise Exception("Please select a reservation to cancel.")
+                    res_id = int(res_id_str)
+                    self.app.reserve_svc.cancel_reservation(
+                        reservation_id=res_id,
+                        member_id=member_id,
+                        actor_username=user["username"]
+                    )
                     return self.app.redirect(start_response, "/member/dashboard?tab=reservations", "Reservation cancelled successfully.")
                 except Exception as e:
                     return self.app.redirect(start_response, "/member/dashboard?tab=reservations", str(e), "error")
@@ -72,15 +93,39 @@ class MemberViews:
             # 4. Pay Fine Online
             elif action == "pay_fine_online":
                 try:
-                    fine_id = int(params.get("fine_id"))
-                    amount = float(params.get("amount"))
+                    fine_id_str = params.get("fine_id")
+                    if not fine_id_str:
+                        raise Exception("Please select an outstanding fine.")
+                    fine_id = int(fine_id_str)
+                    fine = self.app.fine_svc.fine_repo.get_by_id(fine_id)
+                    if not fine or fine.member_id != member_id:
+                        raise Exception("Fine record not found for your account.")
+                    raw_amount = float(params.get("amount") or fine.balance_amount)
+                    amount = min(raw_amount, fine.balance_amount)
+                    if amount <= 0:
+                        raise Exception("This fine has already been fully settled.")
                     pm = params.get("payment_method", "UPI")
-                    method_enum = PaymentMethod[pm]
                     receipt = self.app.payment_svc.process_payment(
-                        fine_id=fine_id, amount=amount, payment_method=method_enum,
-                        cashier_username="ONLINE_PORTAL", actor_username=user["username"]
+                        fine_id=fine_id,
+                        amount=amount,
+                        payment_method=pm,
+                        actor_username=user["username"]
                     )
-                    return self.app.redirect(start_response, "/member/dashboard?tab=fines", f"Fine payment of ${amount:.2f} confirmed! Receipt #{receipt.receipt_number}")
+                    return self.app.redirect(start_response, "/member/dashboard?tab=fines", f"Fine payment of ₹{amount:.2f} confirmed! Receipt #{receipt.receipt_number}")
+                except Exception as e:
+                    return self.app.redirect(start_response, "/member/dashboard?tab=fines", str(e), "error")
+
+            # 5. Generate Test Fine for Demo
+            elif action == "generate_test_fine":
+                try:
+                    fine = self.app.fine_svc.assess_fine(
+                        member_id=member["member_id"],
+                        amount=25.00,
+                        fine_type="OVERDUE",
+                        reason="Test overdue circulation fee",
+                        actor_username=user["username"]
+                    )
+                    return self.app.redirect(start_response, "/member/dashboard?tab=fines", f"Demo fine #{fine.fine_id} of ₹25.00 generated! You can now test paying it online.")
                 except Exception as e:
                     return self.app.redirect(start_response, "/member/dashboard?tab=fines", str(e), "error")
 
@@ -146,7 +191,7 @@ class MemberViews:
             <div class="kpi-card"><div class="kpi-title">Currently Borrowed</div><div class="kpi-value">{len(loans)}</div></div>
             <div class="kpi-card"><div class="kpi-title">Due Soon</div><div class="kpi-value" style="color:var(--warning);">{len(due_soon)}</div></div>
             <div class="kpi-card"><div class="kpi-title">Overdue Books</div><div class="kpi-value" style="color:var(--danger);">{len(overdue)}</div></div>
-            <div class="kpi-card"><div class="kpi-title">Outstanding Fine</div><div class="kpi-value" style="color:var(--danger);">${outstanding_fine:.2f}</div></div>
+            <div class="kpi-card"><div class="kpi-title">Outstanding Fine</div><div class="kpi-value" style="color:var(--danger);">₹{outstanding_fine:.2f}</div></div>
         </div>
 
         <div class="card">
@@ -240,7 +285,7 @@ class MemberViews:
                 <td><code>{h['barcode']}</code></td>
                 <td>{h['returned_date']}</td>
                 <td>{h['condition_on_return']}</td>
-                <td>${h['fine_amount']:.2f}</td>
+                <td>₹{h['fine_amount']:.2f}</td>
             </tr>
         ''' for h in history)
 
@@ -290,15 +335,16 @@ class MemberViews:
         mid = member["member_id"]
         fines = self.app.db_manager.fetch_all("SELECT * FROM fines WHERE member_id = ? ORDER BY fine_id DESC;", (mid,))
         unpaid = [f for f in fines if f['status'] != 'PAID']
-        unpaid_opts = "".join(f"<option value='{f['fine_id']}'>Fine #{f['fine_id']}: ${f['balance_amount']:.2f} ({f['fine_type']})</option>" for f in unpaid)
+        unpaid_opts = "".join(f"<option value='{f['fine_id']}' data-bal='{f['balance_amount']:.2f}'>Fine #{f['fine_id']}: ₹{f['balance_amount']:.2f} ({f['fine_type']})</option>" for f in unpaid)
+        default_amt = f"{unpaid[0]['balance_amount']:.2f}" if unpaid else "10.00"
 
         rows = "".join(f'''
             <tr>
                 <td>#{f['fine_id']}</td>
                 <td>{f['fine_type']}</td>
-                <td>${f['amount']:.2f}</td>
-                <td>${f['paid_amount']:.2f}</td>
-                <td><strong style="color:var(--danger);">${f['balance_amount']:.2f}</strong></td>
+                <td>₹{f['amount']:.2f}</td>
+                <td>₹{f['paid_amount']:.2f}</td>
+                <td><strong style="color:var(--danger);">₹{f['balance_amount']:.2f}</strong></td>
                 <td><span class="badge badge-{'avail' if f['status'] == 'PAID' else 'overdue'}">{f['status']}</span></td>
             </tr>
         ''' for f in fines)
@@ -314,22 +360,39 @@ class MemberViews:
             <tr>
                 <td><code>{p['receipt_number']}</code></td>
                 <td>{p['payment_date']}</td>
-                <td>${p['amount']:.2f}</td>
+                <td>₹{p['amount']:.2f}</td>
                 <td>{p['payment_method']}</td>
-                <td><span class="badge badge-avail">{p['status']}</span></td>
+                <td><span class="badge badge-avail">SUCCESS</span></td>
             </tr>
         ''' for p in payments)
+
+        empty_unpaid_html = ""
+        if not unpaid:
+            empty_unpaid_html = '''
+            <div style="margin-top:1.25rem; padding:1.25rem; background:var(--accent-subtle); border:1px solid var(--accent); border-radius:8px;">
+                <p style="font-weight:700; color:var(--text-main); margin-bottom:0.35rem;">Zero Outstanding Dues</p>
+                <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:0.85rem;">Your library account is completely clear. No dues or fines are currently pending!</p>
+                <form method="POST" action="/member/dashboard">
+                    <input type="hidden" name="action" value="generate_test_fine">
+                    <button type="submit" class="btn btn-secondary btn-sm">+ Generate Demo Overdue Fine (₹25.00) to Test Payment</button>
+                </form>
+            </div>
+            '''
 
         return f'''
         <div class="header-row"><h1>My Fines & Online Fee Settlement</h1></div>
 
         <div class="card">
-            <h2>?? Pay Fine Online (Instant Clearance)</h2>
+            <h2>Pay Fine Online (Instant Clearance)</h2>
             <form method="POST" action="/member/dashboard">
                 <input type="hidden" name="action" value="pay_fine_online">
                 <div class="form-grid">
-                    <div class="form-group"><label>Select Unpaid Fine *</label><select name="fine_id">{unpaid_opts or "<option value=''>No outstanding fines</option>"}</select></div>
-                    <div class="form-group"><label>Payment Amount ($) *</label><input type="number" step="0.50" name="amount" value="10.00" min="0.50"></div>
+                    <div class="form-group"><label>Select Unpaid Fine *</label>
+                        <select name="fine_id" id="mem_fine_select" onchange="var b = this.options[this.selectedIndex].getAttribute('data-bal'); if(b) document.getElementById('mem_fine_amt').value = b;">
+                            {unpaid_opts or "<option value=''>No outstanding unpaid fines</option>"}
+                        </select>
+                    </div>
+                    <div class="form-group"><label>Payment Amount (₹) *</label><input type="number" id="mem_fine_amt" step="0.50" name="amount" value="{default_amt}" min="0.50" required></div>
                     <div class="form-group"><label>Payment Method *</label>
                         <select name="payment_method">
                             <option value="UPI">UPI / QR Code</option>
@@ -340,15 +403,16 @@ class MemberViews:
                 </div>
                 <button type="submit" class="btn btn-success" {'disabled' if not unpaid else ''}>Pay Now Online</button>
             </form>
+            {empty_unpaid_html}
         </div>
 
         <div class="card">
-            <h2>Fines Assessment History</h2>
+            <h2>Fines Assessment History ({len(fines)} Total Entries)</h2>
             <table><thead><tr><th>Fine ID</th><th>Reason</th><th>Assessed</th><th>Paid</th><th>Outstanding</th><th>Status</th></tr></thead><tbody>{rows or "<tr><td colspan='6' class='empty-state'>No fines on your account.</td></tr>"}</tbody></table>
         </div>
 
         <div class="card">
-            <h2>Payment Receipts</h2>
+            <h2>Payment Receipts ({len(payments)} Total Receipts)</h2>
             <table><thead><tr><th>Receipt No</th><th>Date</th><th>Amount</th><th>Method</th><th>Status</th></tr></thead><tbody>{receipt_rows or "<tr><td colspan='5' class='empty-state'>No payment receipts yet.</td></tr>"}</tbody></table>
         </div>
         '''

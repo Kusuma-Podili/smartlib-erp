@@ -19,6 +19,7 @@ class ReservationService:
         audit_svc: Optional[AuditService] = None
     ):
         self.reserve_repo = reserve_repo or ReservationRepository()
+        self.repo = self.reserve_repo
         self.book_repo = book_repo or BookRepository()
         self.member_repo = member_repo or MemberRepository()
         self.audit_svc = audit_svc or AuditService()

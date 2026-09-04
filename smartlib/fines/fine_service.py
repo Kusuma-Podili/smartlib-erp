@@ -16,6 +16,7 @@ class FineService:
         audit_svc: Optional[AuditService] = None
     ):
         self.fine_repo = fine_repo or FineRepository()
+        self.repo = self.fine_repo
         self.member_repo = member_repo or MemberRepository()
         self.audit_svc = audit_svc or AuditService()
 

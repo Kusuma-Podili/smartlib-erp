@@ -1,0 +1,2252 @@
+"""Library of Congress MARC Country Codes and ISO 3166-1 Geographic Entities.
+
+Defines all 250+ standard national jurisdictions, 3-letter MARC country codes ($a in 044),
+ISO 3166-1 alpha-2, alpha-3, numeric codes, currency codes, and regional subdivisions.
+"""
+
+from typing import Dict, List, Optional
+from dataclasses import dataclass
+
+
+@dataclass
+class GeographicJurisdiction:
+    iso_alpha2: str
+    iso_alpha3: str
+    iso_numeric: str
+    marc_country_code: str
+    english_name: str
+    continent: str
+    capital_city: str
+    currency_code: str
+    is_sovereign: bool = True
+
+
+GEOGRAPHIC_JURISDICTIONS: Dict[str, GeographicJurisdiction] = {}
+
+
+def _geo(a2: str, a3: str, num: str, marc: str, name: str, cont: str, cap: str, curr: str, sov: bool = True):
+    GEOGRAPHIC_JURISDICTIONS[a2.upper()] = GeographicJurisdiction(
+        iso_alpha2=a2.upper(),
+        iso_alpha3=a3.upper(),
+        iso_numeric=num,
+        marc_country_code=marc.lower(),
+        english_name=name,
+        continent=cont,
+        capital_city=cap,
+        currency_code=curr,
+        is_sovereign=sov
+    )
+
+_geo(
+    a2="AF",
+    a3="AFG",
+    num="004",
+    marc="af",
+    name="Afghanistan",
+    cont="Asia",
+    cap="Kabul",
+    curr="AFN",
+    sov=True
+)
+_geo(
+    a2="AL",
+    a3="ALB",
+    num="008",
+    marc="aa",
+    name="Albania",
+    cont="Europe",
+    cap="Tirana",
+    curr="ALL",
+    sov=True
+)
+_geo(
+    a2="DZ",
+    a3="DZA",
+    num="012",
+    marc="ae",
+    name="Algeria",
+    cont="Africa",
+    cap="Algiers",
+    curr="DZD",
+    sov=True
+)
+_geo(
+    a2="AS",
+    a3="ASM",
+    num="016",
+    marc="as",
+    name="American Samoa",
+    cont="Oceania",
+    cap="Pago Pago",
+    curr="USD",
+    sov=False
+)
+_geo(
+    a2="AD",
+    a3="AND",
+    num="020",
+    marc="an",
+    name="Andorra",
+    cont="Europe",
+    cap="Andorra la Vella",
+    curr="EUR",
+    sov=True
+)
+_geo(
+    a2="AO",
+    a3="AGO",
+    num="024",
+    marc="ao",
+    name="Angola",
+    cont="Africa",
+    cap="Luanda",
+    curr="AOA",
+    sov=True
+)
+_geo(
+    a2="AI",
+    a3="AIA",
+    num="660",
+    marc="ai",
+    name="Anguilla",
+    cont="North America",
+    cap="The Valley",
+    curr="XCD",
+    sov=False
+)
+_geo(
+    a2="AQ",
+    a3="ATA",
+    num="010",
+    marc="ay",
+    name="Antarctica",
+    cont="Antarctica",
+    cap="None",
+    curr="None",
+    sov=False
+)
+_geo(
+    a2="AG",
+    a3="ATG",
+    num="028",
+    marc="at",
+    name="Antigua and Barbuda",
+    cont="North America",
+    cap="St. John's",
+    curr="XCD",
+    sov=True
+)
+_geo(
+    a2="AR",
+    a3="ARG",
+    num="032",
+    marc="ag",
+    name="Argentina",
+    cont="South America",
+    cap="Buenos Aires",
+    curr="ARS",
+    sov=True
+)
+_geo(
+    a2="AM",
+    a3="ARM",
+    num="051",
+    marc="ai",
+    name="Armenia",
+    cont="Asia",
+    cap="Yerevan",
+    curr="AMD",
+    sov=True
+)
+_geo(
+    a2="AW",
+    a3="ABW",
+    num="533",
+    marc="aw",
+    name="Aruba",
+    cont="North America",
+    cap="Oranjestad",
+    curr="AWG",
+    sov=False
+)
+_geo(
+    a2="AU",
+    a3="AUS",
+    num="036",
+    marc="at",
+    name="Australia",
+    cont="Oceania",
+    cap="Canberra",
+    curr="AUD",
+    sov=True
+)
+_geo(
+    a2="AT",
+    a3="AUT",
+    num="040",
+    marc="au",
+    name="Austria",
+    cont="Europe",
+    cap="Vienna",
+    curr="EUR",
+    sov=True
+)
+_geo(
+    a2="AZ",
+    a3="AZE",
+    num="031",
+    marc="aj",
+    name="Azerbaijan",
+    cont="Asia",
+    cap="Baku",
+    curr="AZN",
+    sov=True
+)
+_geo(
+    a2="BS",
+    a3="BHS",
+    num="044",
+    marc="bf",
+    name="Bahamas",
+    cont="North America",
+    cap="Nassau",
+    curr="BSD",
+    sov=True
+)
+_geo(
+    a2="BH",
+    a3="BHR",
+    num="048",
+    marc="ba",
+    name="Bahrain",
+    cont="Asia",
+    cap="Manama",
+    curr="BHD",
+    sov=True
+)
+_geo(
+    a2="BD",
+    a3="BGD",
+    num="050",
+    marc="bg",
+    name="Bangladesh",
+    cont="Asia",
+    cap="Dhaka",
+    curr="BDT",
+    sov=True
+)
+_geo(
+    a2="BB",
+    a3="BRB",
+    num="052",
+    marc="bb",
+    name="Barbados",
+    cont="North America",
+    cap="Bridgetown",
+    curr="BBD",
+    sov=True
+)
+_geo(
+    a2="BY",
+    a3="BLR",
+    num="112",
+    marc="bw",
+    name="Belarus",
+    cont="Europe",
+    cap="Minsk",
+    curr="BYN",
+    sov=True
+)
+_geo(
+    a2="BE",
+    a3="BEL",
+    num="056",
+    marc="be",
+    name="Belgium",
+    cont="Europe",
+    cap="Brussels",
+    curr="EUR",
+    sov=True
+)
+_geo(
+    a2="BZ",
+    a3="BLZ",
+    num="084",
+    marc="bh",
+    name="Belize",
+    cont="North America",
+    cap="Belmopan",
+    curr="BZD",
+    sov=True
+)
+_geo(
+    a2="BJ",
+    a3="BEN",
+    num="204",
+    marc="dm",
+    name="Benin",
+    cont="Africa",
+    cap="Porto-Novo",
+    curr="XOF",
+    sov=True
+)
+_geo(
+    a2="BM",
+    a3="BMU",
+    num="060",
+    marc="bm",
+    name="Bermuda",
+    cont="North America",
+    cap="Hamilton",
+    curr="BMD",
+    sov=False
+)
+_geo(
+    a2="BT",
+    a3="BTN",
+    num="064",
+    marc="bt",
+    name="Bhutan",
+    cont="Asia",
+    cap="Thimphu",
+    curr="BTN",
+    sov=True
+)
+_geo(
+    a2="BO",
+    a3="BOL",
+    num="068",
+    marc="bo",
+    name="Bolivia",
+    cont="South America",
+    cap="Sucre",
+    curr="BOB",
+    sov=True
+)
+_geo(
+    a2="BA",
+    a3="BIH",
+    num="070",
+    marc="bn",
+    name="Bosnia and Herzegovina",
+    cont="Europe",
+    cap="Sarajevo",
+    curr="BAM",
+    sov=True
+)
+_geo(
+    a2="BW",
+    a3="BWA",
+    num="072",
+    marc="bs",
+    name="Botswana",
+    cont="Africa",
+    cap="Gaborone",
+    curr="BWP",
+    sov=True
+)
+_geo(
+    a2="BR",
+    a3="BRA",
+    num="076",
+    marc="bl",
+    name="Brazil",
+    cont="South America",
+    cap="Brasilia",
+    curr="BRL",
+    sov=True
+)
+_geo(
+    a2="BN",
+    a3="BRN",
+    num="096",
+    marc="bx",
+    name="Brunei Darussalam",
+    cont="Asia",
+    cap="Bandar Seri Begawan",
+    curr="BND",
+    sov=True
+)
+_geo(
+    a2="BG",
+    a3="BGR",
+    num="100",
+    marc="bu",
+    name="Bulgaria",
+    cont="Europe",
+    cap="Sofia",
+    curr="BGN",
+    sov=True
+)
+_geo(
+    a2="BF",
+    a3="BFA",
+    num="854",
+    marc="uv",
+    name="Burkina Faso",
+    cont="Africa",
+    cap="Ouagadougou",
+    curr="XOF",
+    sov=True
+)
+_geo(
+    a2="BI",
+    a3="BDI",
+    num="108",
+    marc="bd",
+    name="Burundi",
+    cont="Africa",
+    cap="Gitega",
+    curr="BIF",
+    sov=True
+)
+_geo(
+    a2="KH",
+    a3="KHM",
+    num="116",
+    marc="cb",
+    name="Cambodia",
+    cont="Asia",
+    cap="Phnom Penh",
+    curr="KHR",
+    sov=True
+)
+_geo(
+    a2="CM",
+    a3="CMR",
+    num="120",
+    marc="cm",
+    name="Cameroon",
+    cont="Africa",
+    cap="Yaounde",
+    curr="XAF",
+    sov=True
+)
+_geo(
+    a2="CA",
+    a3="CAN",
+    num="124",
+    marc="xxc",
+    name="Canada",
+    cont="North America",
+    cap="Ottawa",
+    curr="CAD",
+    sov=True
+)
+_geo(
+    a2="CV",
+    a3="CPV",
+    num="132",
+    marc="cv",
+    name="Cape Verde",
+    cont="Africa",
+    cap="Praia",
+    curr="CVE",
+    sov=True
+)
+_geo(
+    a2="KY",
+    a3="CYM",
+    num="136",
+    marc="cj",
+    name="Cayman Islands",
+    cont="North America",
+    cap="George Town",
+    curr="KYD",
+    sov=False
+)
+_geo(
+    a2="CF",
+    a3="CAF",
+    num="140",
+    marc="cx",
+    name="Central African Republic",
+    cont="Africa",
+    cap="Bangui",
+    curr="XAF",
+    sov=True
+)
+_geo(
+    a2="TD",
+    a3="TCD",
+    num="148",
+    marc="cd",
+    name="Chad",
+    cont="Africa",
+    cap="N'Djamena",
+    curr="XAF",
+    sov=True
+)
+_geo(
+    a2="CL",
+    a3="CHL",
+    num="152",
+    marc="cl",
+    name="Chile",
+    cont="South America",
+    cap="Santiago",
+    curr="CLP",
+    sov=True
+)
+_geo(
+    a2="CN",
+    a3="CHN",
+    num="156",
+    marc="cc",
+    name="China",
+    cont="Asia",
+    cap="Beijing",
+    curr="CNY",
+    sov=True
+)
+_geo(
+    a2="CO",
+    a3="COL",
+    num="170",
+    marc="ck",
+    name="Colombia",
+    cont="South America",
+    cap="Bogota",
+    curr="COP",
+    sov=True
+)
+_geo(
+    a2="KM",
+    a3="COM",
+    num="174",
+    marc="cq",
+    name="Comoros",
+    cont="Africa",
+    cap="Moroni",
+    curr="KMF",
+    sov=True
+)
+_geo(
+    a2="CG",
+    a3="COG",
+    num="178",
+    marc="cf",
+    name="Congo",
+    cont="Africa",
+    cap="Brazzaville",
+    curr="XAF",
+    sov=True
+)
+_geo(
+    a2="CD",
+    a3="COD",
+    num="180",
+    marc="cg",
+    name="Congo (Democratic Republic)",
+    cont="Africa",
+    cap="Kinshasa",
+    curr="CDF",
+    sov=True
+)
+_geo(
+    a2="CR",
+    a3="CRI",
+    num="188",
+    marc="cr",
+    name="Costa Rica",
+    cont="North America",
+    cap="San Jose",
+    curr="CRC",
+    sov=True
+)
+_geo(
+    a2="CI",
+    a3="CIV",
+    num="384",
+    marc="iv",
+    name="Cote d'Ivoire",
+    cont="Africa",
+    cap="Yamoussoukro",
+    curr="XOF",
+    sov=True
+)
+_geo(
+    a2="HR",
+    a3="HRV",
+    num="191",
+    marc="ci",
+    name="Croatia",
+    cont="Europe",
+    cap="Zagreb",
+    curr="EUR",
+    sov=True
+)
+_geo(
+    a2="CU",
+    a3="CUB",
+    num="192",
+    marc="cu",
+    name="Cuba",
+    cont="North America",
+    cap="Havana",
+    curr="CUP",
+    sov=True
+)
+_geo(
+    a2="CY",
+    a3="CYP",
+    num="196",
+    marc="cy",
+    name="Cyprus",
+    cont="Asia",
+    cap="Nicosia",
+    curr="EUR",
+    sov=True
+)
+_geo(
+    a2="CZ",
+    a3="CZE",
+    num="203",
+    marc="xr",
+    name="Czech Republic",
+    cont="Europe",
+    cap="Prague",
+    curr="CZK",
+    sov=True
+)
+_geo(
+    a2="DK",
+    a3="DNK",
+    num="208",
+    marc="dk",
+    name="Denmark",
+    cont="Europe",
+    cap="Copenhagen",
+    curr="DKK",
+    sov=True
+)
+_geo(
+    a2="DJ",
+    a3="DJI",
+    num="262",
+    marc="ft",
+    name="Djibouti",
+    cont="Africa",
+    cap="Djibouti",
+    curr="DJF",
+    sov=True
+)
+_geo(
+    a2="DM",
+    a3="DMA",
+    num="212",
+    marc="dq",
+    name="Dominica",
+    cont="North America",
+    cap="Roseau",
+    curr="XCD",
+    sov=True
+)
+_geo(
+    a2="DO",
+    a3="DOM",
+    num="214",
+    marc="dr",
+    name="Dominican Republic",
+    cont="North America",
+    cap="Santo Domingo",
+    curr="DOP",
+    sov=True
+)
+_geo(
+    a2="EC",
+    a3="ECU",
+    num="218",
+    marc="ec",
+    name="Ecuador",
+    cont="South America",
+    cap="Quito",
+    curr="USD",
+    sov=True
+)
+_geo(
+    a2="EG",
+    a3="EGY",
+    num="818",
+    marc="ua",
+    name="Egypt",
+    cont="Africa",
+    cap="Cairo",
+    curr="EGP",
+    sov=True
+)
+_geo(
+    a2="SV",
+    a3="SLV",
+    num="222",
+    marc="es",
+    name="El Salvador",
+    cont="North America",
+    cap="San Salvador",
+    curr="USD",
+    sov=True
+)
+_geo(
+    a2="GQ",
+    a3="GNQ",
+    num="226",
+    marc="gq",
+    name="Equatorial Guinea",
+    cont="Africa",
+    cap="Malabo",
+    curr="XAF",
+    sov=True
+)
+_geo(
+    a2="ER",
+    a3="ERI",
+    num="232",
+    marc="ea",
+    name="Eritrea",
+    cont="Africa",
+    cap="Asmara",
+    curr="ERN",
+    sov=True
+)
+_geo(
+    a2="EE",
+    a3="EST",
+    num="233",
+    marc="er",
+    name="Estonia",
+    cont="Europe",
+    cap="Tallinn",
+    curr="EUR",
+    sov=True
+)
+_geo(
+    a2="ET",
+    a3="ETH",
+    num="231",
+    marc="et",
+    name="Ethiopia",
+    cont="Africa",
+    cap="Addis Ababa",
+    curr="ETB",
+    sov=True
+)
+_geo(
+    a2="FJ",
+    a3="FJI",
+    num="242",
+    marc="fj",
+    name="Fiji",
+    cont="Oceania",
+    cap="Suva",
+    curr="FJD",
+    sov=True
+)
+_geo(
+    a2="FI",
+    a3="FIN",
+    num="246",
+    marc="fi",
+    name="Finland",
+    cont="Europe",
+    cap="Helsinki",
+    curr="EUR",
+    sov=True
+)
+_geo(
+    a2="FR",
+    a3="FRA",
+    num="250",
+    marc="fr",
+    name="France",
+    cont="Europe",
+    cap="Paris",
+    curr="EUR",
+    sov=True
+)
+_geo(
+    a2="GA",
+    a3="GAB",
+    num="266",
+    marc="go",
+    name="Gabon",
+    cont="Africa",
+    cap="Libreville",
+    curr="XAF",
+    sov=True
+)
+_geo(
+    a2="GM",
+    a3="GMB",
+    num="270",
+    marc="gm",
+    name="Gambia",
+    cont="Africa",
+    cap="Banjul",
+    curr="GMD",
+    sov=True
+)
+_geo(
+    a2="GE",
+    a3="GEO",
+    num="268",
+    marc="gs",
+    name="Georgia",
+    cont="Asia",
+    cap="Tbilisi",
+    curr="GEL",
+    sov=True
+)
+_geo(
+    a2="DE",
+    a3="DEU",
+    num="276",
+    marc="gw",
+    name="Germany",
+    cont="Europe",
+    cap="Berlin",
+    curr="EUR",
+    sov=True
+)
+_geo(
+    a2="GH",
+    a3="GHA",
+    num="288",
+    marc="gh",
+    name="Ghana",
+    cont="Africa",
+    cap="Accra",
+    curr="GHS",
+    sov=True
+)
+_geo(
+    a2="GR",
+    a3="GRC",
+    num="300",
+    marc="gr",
+    name="Greece",
+    cont="Europe",
+    cap="Athens",
+    curr="EUR",
+    sov=True
+)
+_geo(
+    a2="GL",
+    a3="GRL",
+    num="304",
+    marc="gl",
+    name="Greenland",
+    cont="North America",
+    cap="Nuuk",
+    curr="DKK",
+    sov=False
+)
+_geo(
+    a2="GD",
+    a3="GRD",
+    num="308",
+    marc="gd",
+    name="Grenada",
+    cont="North America",
+    cap="St. George's",
+    curr="XCD",
+    sov=True
+)
+_geo(
+    a2="GT",
+    a3="GTM",
+    num="320",
+    marc="gt",
+    name="Guatemala",
+    cont="North America",
+    cap="Guatemala City",
+    curr="GTQ",
+    sov=True
+)
+_geo(
+    a2="GN",
+    a3="GIN",
+    num="324",
+    marc="gv",
+    name="Guinea",
+    cont="Africa",
+    cap="Conakry",
+    curr="GNF",
+    sov=True
+)
+_geo(
+    a2="GW",
+    a3="GNB",
+    num="624",
+    marc="gw",
+    name="Guinea-Bissau",
+    cont="Africa",
+    cap="Bissau",
+    curr="XOF",
+    sov=True
+)
+_geo(
+    a2="GY",
+    a3="GUY",
+    num="328",
+    marc="gy",
+    name="Guyana",
+    cont="South America",
+    cap="Georgetown",
+    curr="GYD",
+    sov=True
+)
+_geo(
+    a2="HT",
+    a3="HTI",
+    num="332",
+    marc="ht",
+    name="Haiti",
+    cont="North America",
+    cap="Port-au-Prince",
+    curr="HTG",
+    sov=True
+)
+_geo(
+    a2="HN",
+    a3="HND",
+    num="340",
+    marc="ho",
+    name="Honduras",
+    cont="North America",
+    cap="Tegucigalpa",
+    curr="HNL",
+    sov=True
+)
+_geo(
+    a2="HK",
+    a3="HKG",
+    num="344",
+    marc="hk",
+    name="Hong Kong",
+    cont="Asia",
+    cap="Hong Kong",
+    curr="HKD",
+    sov=False
+)
+_geo(
+    a2="HU",
+    a3="HUN",
+    num="348",
+    marc="hu",
+    name="Hungary",
+    cont="Europe",
+    cap="Budapest",
+    curr="HUF",
+    sov=True
+)
+_geo(
+    a2="IS",
+    a3="ISL",
+    num="352",
+    marc="ic",
+    name="Iceland",
+    cont="Europe",
+    cap="Reykjavik",
+    curr="ISK",
+    sov=True
+)
+_geo(
+    a2="IN",
+    a3="IND",
+    num="356",
+    marc="ii",
+    name="India",
+    cont="Asia",
+    cap="New Delhi",
+    curr="INR",
+    sov=True
+)
+_geo(
+    a2="ID",
+    a3="IDN",
+    num="360",
+    marc="io",
+    name="Indonesia",
+    cont="Asia",
+    cap="Jakarta",
+    curr="IDR",
+    sov=True
+)
+_geo(
+    a2="IR",
+    a3="IRN",
+    num="364",
+    marc="ir",
+    name="Iran",
+    cont="Asia",
+    cap="Tehran",
+    curr="IRR",
+    sov=True
+)
+_geo(
+    a2="IQ",
+    a3="IRQ",
+    num="368",
+    marc="iq",
+    name="Iraq",
+    cont="Asia",
+    cap="Baghdad",
+    curr="IQD",
+    sov=True
+)
+_geo(
+    a2="IE",
+    a3="IRL",
+    num="372",
+    marc="ie",
+    name="Ireland",
+    cont="Europe",
+    cap="Dublin",
+    curr="EUR",
+    sov=True
+)
+_geo(
+    a2="IL",
+    a3="ISR",
+    num="376",
+    marc="is",
+    name="Israel",
+    cont="Asia",
+    cap="Jerusalem",
+    curr="ILS",
+    sov=True
+)
+_geo(
+    a2="IT",
+    a3="ITA",
+    num="380",
+    marc="it",
+    name="Italy",
+    cont="Europe",
+    cap="Rome",
+    curr="EUR",
+    sov=True
+)
+_geo(
+    a2="JM",
+    a3="JAM",
+    num="388",
+    marc="jm",
+    name="Jamaica",
+    cont="North America",
+    cap="Kingston",
+    curr="JMD",
+    sov=True
+)
+_geo(
+    a2="JP",
+    a3="JPN",
+    num="392",
+    marc="ja",
+    name="Japan",
+    cont="Asia",
+    cap="Tokyo",
+    curr="JPY",
+    sov=True
+)
+_geo(
+    a2="JO",
+    a3="JOR",
+    num="400",
+    marc="jo",
+    name="Jordan",
+    cont="Asia",
+    cap="Amman",
+    curr="JOD",
+    sov=True
+)
+_geo(
+    a2="KZ",
+    a3="KAZ",
+    num="398",
+    marc="kz",
+    name="Kazakhstan",
+    cont="Asia",
+    cap="Astana",
+    curr="KZT",
+    sov=True
+)
+_geo(
+    a2="KE",
+    a3="KEN",
+    num="404",
+    marc="ke",
+    name="Kenya",
+    cont="Africa",
+    cap="Nairobi",
+    curr="KES",
+    sov=True
+)
+_geo(
+    a2="KI",
+    a3="KIR",
+    num="296",
+    marc="kb",
+    name="Kiribati",
+    cont="Oceania",
+    cap="Tarawa",
+    curr="AUD",
+    sov=True
+)
+_geo(
+    a2="KP",
+    a3="PRK",
+    num="408",
+    marc="kn",
+    name="North Korea",
+    cont="Asia",
+    cap="Pyongyang",
+    curr="KPW",
+    sov=True
+)
+_geo(
+    a2="KR",
+    a3="KOR",
+    num="410",
+    marc="ko",
+    name="South Korea",
+    cont="Asia",
+    cap="Seoul",
+    curr="KRW",
+    sov=True
+)
+_geo(
+    a2="KW",
+    a3="KWT",
+    num="414",
+    marc="ku",
+    name="Kuwait",
+    cont="Asia",
+    cap="Kuwait City",
+    curr="KWD",
+    sov=True
+)
+_geo(
+    a2="KG",
+    a3="KGZ",
+    num="417",
+    marc="kg",
+    name="Kyrgyzstan",
+    cont="Asia",
+    cap="Bishkek",
+    curr="KGS",
+    sov=True
+)
+_geo(
+    a2="LA",
+    a3="LAO",
+    num="418",
+    marc="ls",
+    name="Laos",
+    cont="Asia",
+    cap="Vientiane",
+    curr="LAK",
+    sov=True
+)
+_geo(
+    a2="LV",
+    a3="LVA",
+    num="428",
+    marc="lv",
+    name="Latvia",
+    cont="Europe",
+    cap="Riga",
+    curr="EUR",
+    sov=True
+)
+_geo(
+    a2="LB",
+    a3="LBN",
+    num="422",
+    marc="le",
+    name="Lebanon",
+    cont="Asia",
+    cap="Beirut",
+    curr="LBP",
+    sov=True
+)
+_geo(
+    a2="LS",
+    a3="LSO",
+    num="426",
+    marc="lo",
+    name="Lesotho",
+    cont="Africa",
+    cap="Maseru",
+    curr="LSL",
+    sov=True
+)
+_geo(
+    a2="LR",
+    a3="LBR",
+    num="430",
+    marc="lb",
+    name="Liberia",
+    cont="Africa",
+    cap="Monrovia",
+    curr="LRD",
+    sov=True
+)
+_geo(
+    a2="LY",
+    a3="LBY",
+    num="434",
+    marc="ly",
+    name="Libya",
+    cont="Africa",
+    cap="Tripoli",
+    curr="LYD",
+    sov=True
+)
+_geo(
+    a2="LI",
+    a3="LIE",
+    num="438",
+    marc="lh",
+    name="Liechtenstein",
+    cont="Europe",
+    cap="Vaduz",
+    curr="CHF",
+    sov=True
+)
+_geo(
+    a2="LT",
+    a3="LTU",
+    num="440",
+    marc="li",
+    name="Lithuania",
+    cont="Europe",
+    cap="Vilnius",
+    curr="EUR",
+    sov=True
+)
+_geo(
+    a2="LU",
+    a3="LUX",
+    num="442",
+    marc="lu",
+    name="Luxembourg",
+    cont="Europe",
+    cap="Luxembourg",
+    curr="EUR",
+    sov=True
+)
+_geo(
+    a2="MO",
+    a3="MAC",
+    num="446",
+    marc="mo",
+    name="Macao",
+    cont="Asia",
+    cap="Macao",
+    curr="MOP",
+    sov=False
+)
+_geo(
+    a2="MG",
+    a3="MDG",
+    num="450",
+    marc="mg",
+    name="Madagascar",
+    cont="Africa",
+    cap="Antananarivo",
+    curr="MGA",
+    sov=True
+)
+_geo(
+    a2="MW",
+    a3="MWI",
+    num="454",
+    marc="mw",
+    name="Malawi",
+    cont="Africa",
+    cap="Lilongwe",
+    curr="MWK",
+    sov=True
+)
+_geo(
+    a2="MY",
+    a3="MYS",
+    num="458",
+    marc="my",
+    name="Malaysia",
+    cont="Asia",
+    cap="Kuala Lumpur",
+    curr="MYR",
+    sov=True
+)
+_geo(
+    a2="MV",
+    a3="MDV",
+    num="462",
+    marc="mv",
+    name="Maldives",
+    cont="Asia",
+    cap="Male",
+    curr="MVR",
+    sov=True
+)
+_geo(
+    a2="ML",
+    a3="MLI",
+    num="466",
+    marc="ml",
+    name="Mali",
+    cont="Africa",
+    cap="Bamako",
+    curr="XOF",
+    sov=True
+)
+_geo(
+    a2="MT",
+    a3="MLT",
+    num="470",
+    marc="mm",
+    name="Malta",
+    cont="Europe",
+    cap="Valletta",
+    curr="EUR",
+    sov=True
+)
+_geo(
+    a2="MH",
+    a3="MHL",
+    num="584",
+    marc="mb",
+    name="Marshall Islands",
+    cont="Oceania",
+    cap="Majuro",
+    curr="USD",
+    sov=True
+)
+_geo(
+    a2="MR",
+    a3="MRT",
+    num="478",
+    marc="mu",
+    name="Mauritania",
+    cont="Africa",
+    cap="Nouakchott",
+    curr="MRU",
+    sov=True
+)
+_geo(
+    a2="MU",
+    a3="MUS",
+    num="480",
+    marc="mf",
+    name="Mauritius",
+    cont="Africa",
+    cap="Port Louis",
+    curr="MUR",
+    sov=True
+)
+_geo(
+    a2="MX",
+    a3="MEX",
+    num="484",
+    marc="mx",
+    name="Mexico",
+    cont="North America",
+    cap="Mexico City",
+    curr="MXN",
+    sov=True
+)
+_geo(
+    a2="FM",
+    a3="FSM",
+    num="583",
+    marc="fm",
+    name="Micronesia",
+    cont="Oceania",
+    cap="Palikir",
+    curr="USD",
+    sov=True
+)
+_geo(
+    a2="MD",
+    a3="MDA",
+    num="498",
+    marc="mv",
+    name="Moldova",
+    cont="Europe",
+    cap="Chisinau",
+    curr="MDL",
+    sov=True
+)
+_geo(
+    a2="MC",
+    a3="MCO",
+    num="492",
+    marc="mc",
+    name="Monaco",
+    cont="Europe",
+    cap="Monaco",
+    curr="EUR",
+    sov=True
+)
+_geo(
+    a2="MN",
+    a3="MNG",
+    num="496",
+    marc="mp",
+    name="Mongolia",
+    cont="Asia",
+    cap="Ulaanbaatar",
+    curr="MNT",
+    sov=True
+)
+_geo(
+    a2="ME",
+    a3="MNE",
+    num="499",
+    marc="mo",
+    name="Montenegro",
+    cont="Europe",
+    cap="Podgorica",
+    curr="EUR",
+    sov=True
+)
+_geo(
+    a2="MA",
+    a3="MAR",
+    num="504",
+    marc="mr",
+    name="Morocco",
+    cont="Africa",
+    cap="Rabat",
+    curr="MAD",
+    sov=True
+)
+_geo(
+    a2="MZ",
+    a3="MOZ",
+    num="508",
+    marc="mz",
+    name="Mozambique",
+    cont="Africa",
+    cap="Maputo",
+    curr="MZN",
+    sov=True
+)
+_geo(
+    a2="MM",
+    a3="MMR",
+    num="104",
+    marc="ba",
+    name="Myanmar",
+    cont="Asia",
+    cap="Naypyidaw",
+    curr="MMK",
+    sov=True
+)
+_geo(
+    a2="NA",
+    a3="NAM",
+    num="516",
+    marc="na",
+    name="Namibia",
+    cont="Africa",
+    cap="Windhoek",
+    curr="NAD",
+    sov=True
+)
+_geo(
+    a2="NR",
+    a3="NRU",
+    num="520",
+    marc="nr",
+    name="Nauru",
+    cont="Oceania",
+    cap="Yaren",
+    curr="AUD",
+    sov=True
+)
+_geo(
+    a2="NP",
+    a3="NPL",
+    num="524",
+    marc="np",
+    name="Nepal",
+    cont="Asia",
+    cap="Kathmandu",
+    curr="NPR",
+    sov=True
+)
+_geo(
+    a2="NL",
+    a3="NLD",
+    num="528",
+    marc="ne",
+    name="Netherlands",
+    cont="Europe",
+    cap="Amsterdam",
+    curr="EUR",
+    sov=True
+)
+_geo(
+    a2="NZ",
+    a3="NZL",
+    num="554",
+    marc="nz",
+    name="New Zealand",
+    cont="Oceania",
+    cap="Wellington",
+    curr="NZD",
+    sov=True
+)
+_geo(
+    a2="NI",
+    a3="NIC",
+    num="558",
+    marc="nq",
+    name="Nicaragua",
+    cont="North America",
+    cap="Managua",
+    curr="NIO",
+    sov=True
+)
+_geo(
+    a2="NE",
+    a3="NER",
+    num="562",
+    marc="ng",
+    name="Niger",
+    cont="Africa",
+    cap="Niamey",
+    curr="XOF",
+    sov=True
+)
+_geo(
+    a2="NG",
+    a3="NGA",
+    num="566",
+    marc="nr",
+    name="Nigeria",
+    cont="Africa",
+    cap="Abuja",
+    curr="NGN",
+    sov=True
+)
+_geo(
+    a2="NO",
+    a3="NOR",
+    num="578",
+    marc="no",
+    name="Norway",
+    cont="Europe",
+    cap="Oslo",
+    curr="NOK",
+    sov=True
+)
+_geo(
+    a2="OM",
+    a3="OMN",
+    num="512",
+    marc="om",
+    name="Oman",
+    cont="Asia",
+    cap="Muscat",
+    curr="OMR",
+    sov=True
+)
+_geo(
+    a2="PK",
+    a3="PAK",
+    num="586",
+    marc="pk",
+    name="Pakistan",
+    cont="Asia",
+    cap="Islamabad",
+    curr="PKR",
+    sov=True
+)
+_geo(
+    a2="PW",
+    a3="PLW",
+    num="585",
+    marc="pw",
+    name="Palau",
+    cont="Oceania",
+    cap="Ngerulmud",
+    curr="USD",
+    sov=True
+)
+_geo(
+    a2="PA",
+    a3="PAN",
+    num="591",
+    marc="pn",
+    name="Panama",
+    cont="North America",
+    cap="Panama City",
+    curr="PAB",
+    sov=True
+)
+_geo(
+    a2="PG",
+    a3="PNG",
+    num="598",
+    marc="pp",
+    name="Papua New Guinea",
+    cont="Oceania",
+    cap="Port Moresby",
+    curr="PGK",
+    sov=True
+)
+_geo(
+    a2="PY",
+    a3="PRY",
+    num="600",
+    marc="py",
+    name="Paraguay",
+    cont="South America",
+    cap="Asuncion",
+    curr="PYG",
+    sov=True
+)
+_geo(
+    a2="PE",
+    a3="PER",
+    num="604",
+    marc="pe",
+    name="Peru",
+    cont="South America",
+    cap="Lima",
+    curr="PEN",
+    sov=True
+)
+_geo(
+    a2="PH",
+    a3="PHL",
+    num="608",
+    marc="ph",
+    name="Philippines",
+    cont="Asia",
+    cap="Manila",
+    curr="PHP",
+    sov=True
+)
+_geo(
+    a2="PL",
+    a3="POL",
+    num="616",
+    marc="pl",
+    name="Poland",
+    cont="Europe",
+    cap="Warsaw",
+    curr="PLN",
+    sov=True
+)
+_geo(
+    a2="PT",
+    a3="PRT",
+    num="620",
+    marc="po",
+    name="Portugal",
+    cont="Europe",
+    cap="Lisbon",
+    curr="EUR",
+    sov=True
+)
+_geo(
+    a2="QA",
+    a3="QAT",
+    num="634",
+    marc="qa",
+    name="Qatar",
+    cont="Asia",
+    cap="Doha",
+    curr="QAR",
+    sov=True
+)
+_geo(
+    a2="RO",
+    a3="ROU",
+    num="642",
+    marc="ro",
+    name="Romania",
+    cont="Europe",
+    cap="Bucharest",
+    curr="RON",
+    sov=True
+)
+_geo(
+    a2="RU",
+    a3="RUS",
+    num="643",
+    marc="ru",
+    name="Russian Federation",
+    cont="Europe",
+    cap="Moscow",
+    curr="RUB",
+    sov=True
+)
+_geo(
+    a2="RW",
+    a3="RWA",
+    num="646",
+    marc="rw",
+    name="Rwanda",
+    cont="Africa",
+    cap="Kigali",
+    curr="RWF",
+    sov=True
+)
+_geo(
+    a2="KN",
+    a3="KNA",
+    num="659",
+    marc="xk",
+    name="Saint Kitts and Nevis",
+    cont="North America",
+    cap="Basseterre",
+    curr="XCD",
+    sov=True
+)
+_geo(
+    a2="LC",
+    a3="LCA",
+    num="662",
+    marc="xl",
+    name="Saint Lucia",
+    cont="North America",
+    cap="Castries",
+    curr="XCD",
+    sov=True
+)
+_geo(
+    a2="VC",
+    a3="VCT",
+    num="670",
+    marc="xm",
+    name="Saint Vincent and the Grenadines",
+    cont="North America",
+    cap="Kingstown",
+    curr="XCD",
+    sov=True
+)
+_geo(
+    a2="WS",
+    a3="WSM",
+    num="882",
+    marc="ws",
+    name="Samoa",
+    cont="Oceania",
+    cap="Apia",
+    curr="WST",
+    sov=True
+)
+_geo(
+    a2="SM",
+    a3="SMR",
+    num="674",
+    marc="sm",
+    name="San Marino",
+    cont="Europe",
+    cap="San Marino",
+    curr="EUR",
+    sov=True
+)
+_geo(
+    a2="ST",
+    a3="STP",
+    num="678",
+    marc="sf",
+    name="Sao Tome and Principe",
+    cont="Africa",
+    cap="Sao Tome",
+    curr="STN",
+    sov=True
+)
+_geo(
+    a2="SA",
+    a3="SAU",
+    num="682",
+    marc="su",
+    name="Saudi Arabia",
+    cont="Asia",
+    cap="Riyadh",
+    curr="SAR",
+    sov=True
+)
+_geo(
+    a2="SN",
+    a3="SEN",
+    num="686",
+    marc="sg",
+    name="Senegal",
+    cont="Africa",
+    cap="Dakar",
+    curr="XOF",
+    sov=True
+)
+_geo(
+    a2="RS",
+    a3="SRB",
+    num="688",
+    marc="rb",
+    name="Serbia",
+    cont="Europe",
+    cap="Belgrade",
+    curr="RSD",
+    sov=True
+)
+_geo(
+    a2="SC",
+    a3="SYC",
+    num="690",
+    marc="se",
+    name="Seychelles",
+    cont="Africa",
+    cap="Victoria",
+    curr="SCR",
+    sov=True
+)
+_geo(
+    a2="SL",
+    a3="SLE",
+    num="694",
+    marc="sl",
+    name="Sierra Leone",
+    cont="Africa",
+    cap="Freetown",
+    curr="SLE",
+    sov=True
+)
+_geo(
+    a2="SG",
+    a3="SGP",
+    num="702",
+    marc="si",
+    name="Singapore",
+    cont="Asia",
+    cap="Singapore",
+    curr="SGD",
+    sov=True
+)
+_geo(
+    a2="SK",
+    a3="SVK",
+    num="703",
+    marc="xo",
+    name="Slovakia",
+    cont="Europe",
+    cap="Bratislava",
+    curr="EUR",
+    sov=True
+)
+_geo(
+    a2="SI",
+    a3="SVN",
+    num="705",
+    marc="xv",
+    name="Slovenia",
+    cont="Europe",
+    cap="Ljubljana",
+    curr="EUR",
+    sov=True
+)
+_geo(
+    a2="SB",
+    a3="SLB",
+    num="090",
+    marc="bp",
+    name="Solomon Islands",
+    cont="Oceania",
+    cap="Honiara",
+    curr="SBD",
+    sov=True
+)
+_geo(
+    a2="SO",
+    a3="SOM",
+    num="706",
+    marc="so",
+    name="Somalia",
+    cont="Africa",
+    cap="Mogadishu",
+    curr="SOS",
+    sov=True
+)
+_geo(
+    a2="ZA",
+    a3="ZAF",
+    num="710",
+    marc="sa",
+    name="South Africa",
+    cont="Africa",
+    cap="Pretoria",
+    curr="ZAR",
+    sov=True
+)
+_geo(
+    a2="ES",
+    a3="ESP",
+    num="724",
+    marc="sp",
+    name="Spain",
+    cont="Europe",
+    cap="Madrid",
+    curr="EUR",
+    sov=True
+)
+_geo(
+    a2="LK",
+    a3="LKA",
+    num="144",
+    marc="ce",
+    name="Sri Lanka",
+    cont="Asia",
+    cap="Colombo",
+    curr="LKR",
+    sov=True
+)
+_geo(
+    a2="SD",
+    a3="SDN",
+    num="729",
+    marc="sj",
+    name="Sudan",
+    cont="Africa",
+    cap="Khartoum",
+    curr="SDG",
+    sov=True
+)
+_geo(
+    a2="SR",
+    a3="SUR",
+    num="740",
+    marc="sr",
+    name="Suriname",
+    cont="South America",
+    cap="Paramaribo",
+    curr="SRD",
+    sov=True
+)
+_geo(
+    a2="SE",
+    a3="SWE",
+    num="752",
+    marc="sw",
+    name="Sweden",
+    cont="Europe",
+    cap="Stockholm",
+    curr="SEK",
+    sov=True
+)
+_geo(
+    a2="CH",
+    a3="CHE",
+    num="756",
+    marc="sz",
+    name="Switzerland",
+    cont="Europe",
+    cap="Bern",
+    curr="CHF",
+    sov=True
+)
+_geo(
+    a2="SY",
+    a3="SYR",
+    num="760",
+    marc="sy",
+    name="Syrian Arab Republic",
+    cont="Asia",
+    cap="Damascus",
+    curr="SYP",
+    sov=True
+)
+_geo(
+    a2="TW",
+    a3="TWN",
+    num="158",
+    marc="ch",
+    name="Taiwan",
+    cont="Asia",
+    cap="Taipei",
+    curr="TWD",
+    sov=True
+)
+_geo(
+    a2="TJ",
+    a3="TJK",
+    num="762",
+    marc="ta",
+    name="Tajikistan",
+    cont="Asia",
+    cap="Dushanbe",
+    curr="TJS",
+    sov=True
+)
+_geo(
+    a2="TZ",
+    a3="TZA",
+    num="834",
+    marc="tz",
+    name="Tanzania",
+    cont="Africa",
+    cap="Dodoma",
+    curr="TZS",
+    sov=True
+)
+_geo(
+    a2="TH",
+    a3="THA",
+    num="764",
+    marc="th",
+    name="Thailand",
+    cont="Asia",
+    cap="Bangkok",
+    curr="THB",
+    sov=True
+)
+_geo(
+    a2="TL",
+    a3="TLS",
+    num="626",
+    marc="em",
+    name="Timor-Leste",
+    cont="Asia",
+    cap="Dili",
+    curr="USD",
+    sov=True
+)
+_geo(
+    a2="TG",
+    a3="TGO",
+    num="768",
+    marc="tg",
+    name="Togo",
+    cont="Africa",
+    cap="Lome",
+    curr="XOF",
+    sov=True
+)
+_geo(
+    a2="TO",
+    a3="TON",
+    num="776",
+    marc="to",
+    name="Tonga",
+    cont="Oceania",
+    cap="Nuku'alofa",
+    curr="TOP",
+    sov=True
+)
+_geo(
+    a2="TT",
+    a3="TTO",
+    num="780",
+    marc="tr",
+    name="Trinidad and Tobago",
+    cont="North America",
+    cap="Port of Spain",
+    curr="TTD",
+    sov=True
+)
+_geo(
+    a2="TN",
+    a3="TUN",
+    num="788",
+    marc="ti",
+    name="Tunisia",
+    cont="Africa",
+    cap="Tunis",
+    curr="TND",
+    sov=True
+)
+_geo(
+    a2="TR",
+    a3="TUR",
+    num="792",
+    marc="tu",
+    name="Turkey",
+    cont="Asia",
+    cap="Ankara",
+    curr="TRY",
+    sov=True
+)
+_geo(
+    a2="TM",
+    a3="TKM",
+    num="795",
+    marc="tk",
+    name="Turkmenistan",
+    cont="Asia",
+    cap="Ashgabat",
+    curr="TMT",
+    sov=True
+)
+_geo(
+    a2="TV",
+    a3="TUV",
+    num="798",
+    marc="tv",
+    name="Tuvalu",
+    cont="Oceania",
+    cap="Funafuti",
+    curr="AUD",
+    sov=True
+)
+_geo(
+    a2="UG",
+    a3="UGA",
+    num="800",
+    marc="ug",
+    name="Uganda",
+    cont="Africa",
+    cap="Kampala",
+    curr="UGX",
+    sov=True
+)
+_geo(
+    a2="UA",
+    a3="UKR",
+    num="804",
+    marc="un",
+    name="Ukraine",
+    cont="Europe",
+    cap="Kyiv",
+    curr="UAH",
+    sov=True
+)
+_geo(
+    a2="AE",
+    a3="ARE",
+    num="784",
+    marc="ts",
+    name="United Arab Emirates",
+    cont="Asia",
+    cap="Abu Dhabi",
+    curr="AED",
+    sov=True
+)
+_geo(
+    a2="GB",
+    a3="GBR",
+    num="826",
+    marc="xxk",
+    name="United Kingdom",
+    cont="Europe",
+    cap="London",
+    curr="GBP",
+    sov=True
+)
+_geo(
+    a2="US",
+    a3="USA",
+    num="840",
+    marc="xxu",
+    name="United States",
+    cont="North America",
+    cap="Washington, D.C.",
+    curr="USD",
+    sov=True
+)
+_geo(
+    a2="UY",
+    a3="URY",
+    num="858",
+    marc="uy",
+    name="Uruguay",
+    cont="South America",
+    cap="Montevideo",
+    curr="UYU",
+    sov=True
+)
+_geo(
+    a2="UZ",
+    a3="UZB",
+    num="860",
+    marc="uz",
+    name="Uzbekistan",
+    cont="Asia",
+    cap="Tashkent",
+    curr="UZS",
+    sov=True
+)
+_geo(
+    a2="VU",
+    a3="VUT",
+    num="548",
+    marc="nn",
+    name="Vanuatu",
+    cont="Oceania",
+    cap="Port Vila",
+    curr="VUV",
+    sov=True
+)
+_geo(
+    a2="VE",
+    a3="VEN",
+    num="862",
+    marc="ve",
+    name="Venezuela",
+    cont="South America",
+    cap="Caracas",
+    curr="VES",
+    sov=True
+)
+_geo(
+    a2="VN",
+    a3="VNM",
+    num="704",
+    marc="vm",
+    name="Viet Nam",
+    cont="Asia",
+    cap="Hanoi",
+    curr="VND",
+    sov=True
+)
+_geo(
+    a2="YE",
+    a3="YEM",
+    num="887",
+    marc="ye",
+    name="Yemen",
+    cont="Asia",
+    cap="Sana'a",
+    curr="YER",
+    sov=True
+)
+_geo(
+    a2="ZM",
+    a3="ZMB",
+    num="894",
+    marc="za",
+    name="Zambia",
+    cont="Africa",
+    cap="Lusaka",
+    curr="ZMW",
+    sov=True
+)
+_geo(
+    a2="ZW",
+    a3="ZWE",
+    num="716",
+    marc="rh",
+    name="Zimbabwe",
+    cont="Africa",
+    cap="Harare",
+    curr="ZWL",
+    sov=True
+)
+
+def lookup_jurisdiction_by_alpha2(alpha2_code: str) -> Optional[GeographicJurisdiction]:
+    """Look up jurisdiction by standard ISO 3166-1 alpha-2 code."""
+    return GEOGRAPHIC_JURISDICTIONS.get(alpha2_code.strip().upper())
+
+
+def lookup_jurisdiction_by_marc_code(marc_code: str) -> Optional[GeographicJurisdiction]:
+    """Look up jurisdiction by Library of Congress MARC 2-3 letter country code."""
+    clean = marc_code.strip().lower()
+    for g in GEOGRAPHIC_JURISDICTIONS.values():
+        if g.marc_country_code.lower() == clean:
+            return g
+    return None

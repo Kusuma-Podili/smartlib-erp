@@ -20,7 +20,7 @@ class ReportService:
         headers = ["ISBN", "Title", "Author", "Category", "Shelf", "Total", "Available", "Issued", "Price"]
         data = [
             [r["isbn"], r["title"], r["author"] or "-", r["category"] or "-", r["shelf_number"],
-             r["total_copies"], r["available_copies"], r["issued_copies"], f"${r['price']:.2f}"]
+             r["total_copies"], r["available_copies"], r["issued_copies"], f"₹{r['price']:.2f}"]
             for r in rows
         ]
         return {
@@ -67,8 +67,8 @@ class ReportService:
         rows = self.db_manager.fetch_all(sql)
         headers = ["Fine ID", "Member", "Member Code", "Type", "Assessed", "Paid", "Balance", "Status", "Date"]
         data = [
-            [r["fine_id"], r["member"], r["member_code"], r["fine_type"], f"${r['amount']:.2f}",
-             f"${r['paid_amount']:.2f}", f"${r['balance_amount']:.2f}", r["status"], r["created_at"]]
+            [r["fine_id"], r["member"], r["member_code"], r["fine_type"], f"₹{r['amount']:.2f}",
+             f"₹{r['paid_amount']:.2f}", f"₹{r['balance_amount']:.2f}", r["status"], r["created_at"]]
             for r in rows
         ]
         return {

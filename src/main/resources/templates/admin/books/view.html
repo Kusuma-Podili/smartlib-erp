@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${book.title} + ' - Book Overview - SmartLibrary ERP'">Book Overview</title>
+</head>
+<body>
+<div th:replace="~{layout/base :: div}" th:with="pageTitle='Book Details & Copies Management', activeMenu='admin-books'">
+    <div th:fragment="content">
+        <!-- Navigation Breadcrumbs / Actions -->
+        <div class="d-flex justify-between align-center mb-3">
+            <a th:href="@{/admin/books}" class="btn btn-secondary btn-sm"><i class="fa-solid fa-arrow-left"></i> Back to Catalog</a>
+            <div class="d-flex gap-2">
+                <a th:href="@{'/admin/books/' + ${book.id} + '/edit'}" class="btn btn-secondary btn-sm">
+                    <i class="fa-solid fa-pen-to-square"></i> Edit Metadata
+                </a>
+            </div>
+        </div>
+
+        <!-- Book Header Card -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-between align-center">
+                    <div>
+                        <h1 style="font-size: 1.5rem; font-weight: 700; color: #0f172a;" th:text="${book.title}">Clean Code</h1>
+                        <div th:if="${book.subtitle}" style="color: #64748b; font-size: 0.95rem;" th:text="${book.subtitle}"></div>
+                    </div>
+                    <span class="badge" th:classappend="${book.status.name() == 'ACTIVE' ? 'badge-success' : 'badge-danger'}"
+                          th:text="${book.status}">ACTIVE</span>
+                </div>
+
+                <div class="form-grid-3 mt-2" style="background: #f8fafc; padding: 1rem; border-radius: 6px; margin-top: 1rem;">
+                    <div><strong>ISBN:</strong> <code th:text="${book.isbn}">9780132350884</code></div>
+                    <div><strong>Category:</strong> <span th:text="${book.category.name}">Software</span></div>
+                    <div><strong>Publisher:</strong> <span th:text="${book.publisher.name}">Prentice Hall</span></div>
+                    <div><strong>Author(s):</strong> <span th:text="${book.getAuthorsFormatted()}">Robert C. Martin</span></div>
+                    <div><strong>Location:</strong> <span th:text="${book.shelfNumber + ' / ' + book.rackNumber}">Shelf 1 / Rack 2</span></div>
+                    <div><strong>Unit Price:</strong> <span th:text="${'₹' + book.price}">₹650.00</span></div>
+                </div>
+
+                <div th:if="${book.description}" style="margin-top: 1rem; font-size: 0.9rem; color: #475569;">
+                    <p th:text="${book.description}">Description</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Copy Inventory Stats -->
+        <div class="stat-grid">
+            <div class="stat-card">
+                <div class="stat-info">
+                    <div class="stat-label">Total Copies</div>
+                    <div class="stat-value" th:text="${book.getTotalCopiesCount()}">5</div>
+                </div>
+                <div class="stat-icon blue"><i class="fa-solid fa-layer-group"></i></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-info">
+                    <div class="stat-label">Available</div>
+                    <div class="stat-value" th:text="${book.getAvailableCopiesCount()}">3</div>
+                </div>
+                <div class="stat-icon green"><i class="fa-solid fa-circle-check"></i></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-info">
+                    <div class="stat-label">Issued / On Loan</div>
+                    <div class="stat-value" th:text="${book.getIssuedCopiesCount()}">2</div>
+                </div>
+                <div class="stat-icon amber"><i class="fa-solid fa-hand-holding"></i></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-info">
+                    <div class="stat-label">Lost / Damaged</div>
+                    <div class="stat-value" th:text="${book.getLostCopiesCount() + book.getDamagedCopiesCount()}">0</div>
+                </div>
+                <div class="stat-icon red"><i class="fa-solid fa-triangle-exclamation"></i></div>
+            </div>
+        </div>
+
+        <!-- Physical Copies Inventory Table -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <div class="card-title"><i class="fa-solid fa-barcode"></i> Physical Book Copies Inventory</div>
+            </div>
+            <div class="table-responsive">
+                <table class="erp-table">
+                    <thead>
+                    <tr>
+                        <th>Copy #</th>
+                        <th>Barcode</th>
+                        <th>Condition</th>
+                        <th>Availability Status</th>
+                        <th>Acquired Date</th>
+                        <th>Remarks</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="copy : ${copies}">
+                        <td th:text="${'#' + copy.copyNumber}">#1</td>
+                        <td><code th:text="${copy.barcode}">BC-9780132350884-001</code></td>
+                        <td>
+                            <span class="badge" th:classappend="${copy.conditionStatus.name() == 'NEW' || copy.conditionStatus.name() == 'GOOD' ? 'badge-info' : 'badge-warning'}"
+                                  th:text="${copy.conditionStatus}">GOOD</span>
+                        </td>
+                        <td>
+                            <span class="badge"
+                                  th:classappend="${copy.availabilityStatus.name() == 'AVAILABLE' ? 'badge-success' : (copy.availabilityStatus.name() == 'BORROWED' ? 'badge-warning' : 'badge-danger')}"
+                                  th:text="${copy.availabilityStatus}">AVAILABLE</span>
+                        </td>
+                        <td th:text="${copy.acquiredDate}">2026-09-03</td>
+                        <td th:text="${copy.remarks != null ? copy.remarks : '-'}">-</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Add Copies Quick Box -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title"><i class="fa-solid fa-plus-circle"></i> Replenish Copies into Inventory</div>
+            </div>
+            <div class="card-body">
+                <form th:action="@{'/admin/books/' + ${book.id} + '/copies/add'}" method="post" class="d-flex gap-3 align-center">
+                    <div style="flex: 1; max-width: 250px;">
+                        <label class="form-label">Number of Copies to Add</label>
+                        <input type="number" name="copyCount" min="1" max="25" value="1" class="form-control" required>
+                    </div>
+                    <div style="flex: 1; max-width: 250px;">
+                        <label class="form-label">Condition</label>
+                        <select name="condition" class="form-control">
+                            <option value="NEW">NEW</option>
+                            <option value="GOOD" selected>GOOD</option>
+                            <option value="FAIR">FAIR</option>
+                        </select>
+                    </div>
+                    <div style="margin-top: 1.5rem;">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa-solid fa-plus"></i> Generate Barcoded Copies
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

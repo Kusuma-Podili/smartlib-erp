@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Circulation Desk - SmartLibrary ERP</title>
+</head>
+<body>
+<div th:replace="~{layout/base :: div}" th:with="pageTitle='Circulation Desk Dashboard', activeMenu='lib-dashboard'">
+    <div th:fragment="content">
+        <div class="stat-grid">
+            <div class="stat-card">
+                <div class="stat-info">
+                    <div class="stat-label">Issued Today</div>
+                    <div class="stat-value" th:text="${issuedToday != null ? issuedToday : '0'}">0</div>
+                </div>
+                <div class="stat-icon blue"><i class="fa-solid fa-arrow-right-from-bracket"></i></div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-info">
+                    <div class="stat-label">Returned Today</div>
+                    <div class="stat-value" th:text="${returnedToday != null ? returnedToday : '0'}">0</div>
+                </div>
+                <div class="stat-icon green"><i class="fa-solid fa-arrow-right-to-bracket"></i></div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-info">
+                    <div class="stat-label">Pending Holds</div>
+                    <div class="stat-value" th:text="${pendingHolds != null ? pendingHolds : '0'}">0</div>
+                </div>
+                <div class="stat-icon purple"><i class="fa-solid fa-calendar-check"></i></div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-info">
+                    <div class="stat-label">Pending Fines</div>
+                    <div class="stat-value" th:text="${'₹' + (unpaidFines != null ? unpaidFines : '0.00')}">₹0.00</div>
+                </div>
+                <div class="stat-icon amber"><i class="fa-solid fa-receipt"></i></div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <div class="card-title"><i class="fa-solid fa-desktop"></i> Circulation Quick Desk</div>
+            </div>
+            <div class="card-body d-flex gap-3">
+                <a th:href="@{/librarian/borrow}" class="btn btn-primary"><i class="fa-solid fa-barcode"></i> Checkout / Issue Book</a>
+                <a th:href="@{/librarian/return}" class="btn btn-secondary"><i class="fa-solid fa-rotate-left"></i> Checkin / Return Book</a>
+                <a th:href="@{/librarian/members/new}" class="btn btn-secondary"><i class="fa-solid fa-user-plus"></i> New Member Registration</a>
+                <a th:href="@{/librarian/fines}" class="btn btn-secondary"><i class="fa-solid fa-cash-register"></i> Fine Collection Cashier</a>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Member Registration - SmartLibrary ERP</title>
+    <link rel="stylesheet" th:href="@{/css/erp-theme.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+<div class="auth-wrapper" style="padding: 3rem 1rem;">
+    <div class="auth-card" style="max-width: 580px;">
+        <div class="auth-header">
+            <i class="fa-solid fa-id-card" style="font-size: 2.2rem; color: #1e3a8a; margin-bottom: 0.5rem;"></i>
+            <h1>Patron Registration</h1>
+            <p>Create your SmartLibrary Member Account</p>
+        </div>
+
+        <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+        <form th:action="@{/register}" th:object="${registerDto}" method="post">
+            <div class="form-grid-2">
+                <div class="form-group">
+                    <label class="form-label" for="firstName">First Name *</label>
+                    <input type="text" id="firstName" th:field="*{firstName}" class="form-control" required>
+                    <span class="text-danger" th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}"></span>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="lastName">Last Name *</label>
+                    <input type="text" id="lastName" th:field="*{lastName}" class="form-control" required>
+                    <span class="text-danger" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}"></span>
+                </div>
+            </div>
+
+            <div class="form-grid-2">
+                <div class="form-group">
+                    <label class="form-label" for="username">Username *</label>
+                    <input type="text" id="username" th:field="*{username}" class="form-control" required>
+                    <span class="text-danger" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></span>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="email">Email Address *</label>
+                    <input type="email" id="email" th:field="*{email}" class="form-control" required>
+                    <span class="text-danger" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></span>
+                </div>
+            </div>
+
+            <div class="form-grid-2">
+                <div class="form-group">
+                    <label class="form-label" for="phone">Phone Number</label>
+                    <input type="tel" id="phone" th:field="*{phone}" class="form-control" placeholder="10 digits">
+                    <span class="text-danger" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></span>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="address">Address / Campus Dorm</label>
+                    <input type="text" id="address" th:field="*{address}" class="form-control">
+                </div>
+            </div>
+
+            <div class="form-grid-2">
+                <div class="form-group">
+                    <label class="form-label" for="password">Password *</label>
+                    <input type="password" id="password" th:field="*{password}" class="form-control" required>
+                    <span class="text-danger" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></span>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="confirmPassword">Confirm Password *</label>
+                    <input type="password" id="confirmPassword" th:field="*{confirmPassword}" class="form-control" required>
+                    <span class="text-danger" th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}"></span>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 mb-3" style="padding: 0.75rem;">
+                <i class="fa-solid fa-user-plus"></i> Complete Registration
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            Already registered? <a th:href="@{/login}">Back to Sign In</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

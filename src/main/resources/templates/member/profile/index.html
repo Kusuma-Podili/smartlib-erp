@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>My Profile - SmartLibrary ERP</title>
+</head>
+<body>
+<div th:replace="~{layout/base :: div}" th:with="pageTitle='My Membership Profile', activeMenu='mem-profile'">
+    <div th:fragment="content">
+        <div class="form-grid-2">
+            <!-- Profile Details Card -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><i class="fa-solid fa-id-card"></i> Membership Credentials</div>
+                </div>
+                <div class="card-body">
+                    <div style="text-align: center; margin-bottom: 1.5rem;">
+                        <div style="width: 72px; height: 72px; border-radius: 50%; background: #dbeafe; color: #1e3a8a; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 0.75rem;">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+                        <h2 style="font-size: 1.25rem; font-weight: 700;" th:text="${profileDto.firstName + ' ' + profileDto.lastName}">John Doe</h2>
+                        <span class="badge badge-info" th:text="${profileDto.membershipTypeName}">Student</span>
+                    </div>
+
+                    <div style="background: #f8fafc; padding: 1rem; border-radius: 6px; font-size: 0.9rem;">
+                        <div style="margin-bottom: 0.5rem;"><strong>Member Code:</strong> <code th:text="${profileDto.memberCode}">MEM-2026-0001</code></div>
+                        <div style="margin-bottom: 0.5rem;"><strong>Username:</strong> <span th:text="${profileDto.username}">jdoe</span></div>
+                        <div style="margin-bottom: 0.5rem;"><strong>Email:</strong> <span th:text="${profileDto.email}">jdoe@domain.com</span></div>
+                        <div style="margin-bottom: 0.5rem;"><strong>Valid Until:</strong> <span th:text="${profileDto.membershipExpiryDate}">2027-09-03</span></div>
+                        <div>
+                            <strong>Status:</strong>
+                            <span class="badge" th:classappend="${profileDto.membershipActive ? 'badge-success' : 'badge-danger'}"
+                                  th:text="${profileDto.membershipActive ? 'ACTIVE' : 'EXPIRED'}">ACTIVE</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Edit Permitted Profile Details -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><i class="fa-solid fa-user-pen"></i> Edit Personal Information</div>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/member/profile/update}" th:object="${profileDto}" method="post">
+                        <div class="form-grid-2">
+                            <div class="form-group">
+                                <label class="form-label">First Name *</label>
+                                <input type="text" th:field="*{firstName}" class="form-control" required>
+                                <span class="text-danger" th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}"></span>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Last Name *</label>
+                                <input type="text" th:field="*{lastName}" class="form-control" required>
+                                <span class="text-danger" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Phone Number</label>
+                            <input type="tel" th:field="*{phone}" class="form-control">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Address</label>
+                            <input type="text" th:field="*{address}" class="form-control">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Occupation / Major</label>
+                            <input type="text" th:field="*{occupation}" class="form-control">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa-solid fa-floppy-disk"></i> Save Profile Changes
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

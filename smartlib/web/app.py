@@ -113,7 +113,8 @@ class ApplicationServer:
     def redirect(self, start_response, path: str, msg: str = "", msg_type: str = "success"):
         query = ""
         if msg:
-            query = f"?msg={urllib.parse.quote(msg)}&msg_type={msg_type}"
+            sep = "&" if "?" in path else "?"
+            query = f"{sep}msg={urllib.parse.quote(msg)}&msg_type={msg_type}"
         start_response("302 Found", [("Location", path + query)])
         return [b""]
 
@@ -171,79 +172,19 @@ class ApplicationServer:
 </head>
 <body>
     <header class="navbar">
-        <a href="/" class="navbar-brand">&#128218; SmartLibrary ERP</a>
+        <a href="/" class="navbar-brand">SmartLibrary ERP</a>
         <div class="navbar-user">
             <a href="/login" class="btn btn-sm">Sign In to Portal</a>
         </div>
     </header>
-    <main class="main-content" style="max-width: 1200px; margin: 0 auto;">
-        <div style="text-align: center; margin: 3rem 0;">
-            <h1 style="font-size: 2.6rem; color: var(--primary); margin-bottom: 0.75rem;">SmartLibrary ERP System</h1>
-            <p style="font-size: 1.15rem; color: var(--text-muted); max-width: 650px; margin: 0 auto 2rem;">
+    <main class="main-content" style="max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 70vh;">
+        <div style="text-align: center; margin: 3rem 0; background: var(--bg-card); padding: 3.5rem 2.5rem; border-radius: 12px; border: 1px solid var(--border); border-top: 4px solid var(--accent); box-shadow: 0 4px 12px rgba(63, 58, 58, 0.05); width: 100%;">
+            <h1 style="font-size: 2.6rem; color: var(--text-main); margin-bottom: 0.75rem; font-weight: 800;">SmartLibrary ERP System</h1>
+            <p style="font-size: 1.15rem; color: var(--text-muted); max-width: 580px; margin: 0 auto 2.5rem; line-height: 1.6;">
                 Enterprise Library Resource Planning System in Pure Python.
             </p>
             <div style="display: flex; justify-content: center; gap: 1rem;">
-                <a href="/login" class="btn" style="font-size: 1.1rem; padding: 0.85rem 2rem;">Access System Portal &rarr;</a>
-            </div>
-        </div>
-
-        <div class="grid-4">
-            <div class="kpi-card">
-                <div class="kpi-title">Catalog Titles</div>
-                <div class="kpi-value">{kpis['total_books']}</div>
-            </div>
-            <div class="kpi-card">
-                <div class="kpi-title">Physical Copies</div>
-                <div class="kpi-value">{kpis['total_copies']}</div>
-            </div>
-            <div class="kpi-card">
-                <div class="kpi-title">Available Copies</div>
-                <div class="kpi-value" style="color: var(--success);">{kpis['available_copies']}</div>
-            </div>
-            <div class="kpi-card">
-                <div class="kpi-title">Active Patrons</div>
-                <div class="kpi-value">{kpis['total_members']}</div>
-            </div>
-        </div>
-
-        <div class="card">
-            <h2>Unified Role-Based Architecture</h2>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.25rem;">
-                <div style="background: #f8fafc; padding: 1.25rem; border-radius: 8px; border-left: 4px solid #dc2626;">
-                    <h3 style="color: #991b1b; font-size: 1.1rem; margin-bottom: 0.5rem;">&#128104;&#8205;&#128188; ADMIN DASHBOARD</h3>
-                    <p style="font-size: 0.88rem; color: #475569; margin-bottom: 0.75rem;">
-                        <strong>Controls the entire library:</strong> Users + Books + Employees + Reports + Settings + Audits.
-                    </p>
-                    <div style="font-size: 0.85rem; background: white; padding: 0.6rem; border-radius: 4px; border: 1px solid var(--border);">
-                        <strong>Credentials:</strong><br>
-                        Email: <code>admin@library.com</code><br>
-                        Password: <code>Admin@123</code>
-                    </div>
-                </div>
-
-                <div style="background: #f8fafc; padding: 1.25rem; border-radius: 8px; border-left: 4px solid #d97706;">
-                    <h3 style="color: #92400e; font-size: 1.1rem; margin-bottom: 0.5rem;">&#128105;&#8205;&#128188; EMPLOYEE / LIBRARIAN DASHBOARD</h3>
-                    <p style="font-size: 0.88rem; color: #475569; margin-bottom: 0.75rem;">
-                        <strong>Runs daily operations:</strong> Members + Books + Issues + Returns + Renewals + Fines + Cashier.
-                    </p>
-                    <div style="font-size: 0.85rem; background: white; padding: 0.6rem; border-radius: 4px; border: 1px solid var(--border);">
-                        <strong>Credentials:</strong><br>
-                        Email: <code>librarian@library.com</code><br>
-                        Password: <code>Librarian@123</code>
-                    </div>
-                </div>
-
-                <div style="background: #f8fafc; padding: 1.25rem; border-radius: 8px; border-left: 4px solid #16a34a;">
-                    <h3 style="color: #166534; font-size: 1.1rem; margin-bottom: 0.5rem;">&#128104;&#8205;&#127891; MEMBER DASHBOARD</h3>
-                    <p style="font-size: 0.88rem; color: #475569; margin-bottom: 0.75rem;">
-                        <strong>Uses the library:</strong> Search + Borrow + Reserve Holds + Self-Renew + Pay Fines Online.
-                    </p>
-                    <div style="font-size: 0.85rem; background: white; padding: 0.6rem; border-radius: 4px; border: 1px solid var(--border);">
-                        <strong>Credentials:</strong><br>
-                        Email: <code>member@library.com</code><br>
-                        Password: <code>Member@123</code>
-                    </div>
-                </div>
+                <a href="/login" class="btn" style="font-size: 1.15rem; padding: 0.9rem 2.5rem; font-weight: 700; border-radius: 8px;">Access System Portal &rarr;</a>
             </div>
         </div>
     </main>
@@ -291,7 +232,7 @@ class ApplicationServer:
 </head>
 <body style="display: flex; align-items: center; justify-content: center; height: 100vh;">
     <div style="width: 100%; max-width: 440px; padding: 2rem;" class="card">
-        <h1 style="font-size: 1.5rem; color: var(--primary); text-align: center; margin-bottom: 0.35rem;">&#128218; SmartLibrary ERP</h1>
+        <h1 style="font-size: 1.5rem; color: var(--text-main); text-align: center; margin-bottom: 0.35rem; font-weight: 700;">SmartLibrary ERP</h1>
         <p style="text-align: center; font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.5rem;">Sign In to your role portal</p>
         {error_html}
         <form method="POST" action="/login">

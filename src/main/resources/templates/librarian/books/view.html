@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${book.title} + ' - Copies - SmartLibrary ERP'">Manage Copies</title>
+</head>
+<body>
+<div th:replace="~{layout/base :: div}" th:with="pageTitle='Circulation Copy Management', activeMenu='lib-books'">
+    <div th:fragment="content">
+        <div class="d-flex justify-between align-center mb-3">
+            <a th:href="@{/librarian/books}" class="btn btn-secondary btn-sm"><i class="fa-solid fa-arrow-left"></i> Back to Search</a>
+            <div class="d-flex gap-2">
+                <a th:href="@{/librarian/borrow}" class="btn btn-primary btn-sm"><i class="fa-solid fa-arrow-right-from-bracket"></i> Issue Copy to Patron</a>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <h1 style="font-size: 1.4rem; font-weight: 700;" th:text="${book.title}">Clean Code</h1>
+                <p style="color: #64748b;" th:text="${book.getAuthorsFormatted()} + ' • ISBN: ' + ${book.isbn}">Authors</p>
+                <div class="mt-2" style="font-size: 0.85rem;">
+                    <strong>Location:</strong> <span th:text="${book.shelfNumber + ' / ' + book.rackNumber}">Shelf A / Rack 1</span> |
+                    <strong>Available Copies:</strong> <span class="badge badge-success" th:text="${book.getAvailableCopiesCount()}">3</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title"><i class="fa-solid fa-barcode"></i> Physical Copies Status & Maintenance</div>
+            </div>
+            <div class="table-responsive">
+                <table class="erp-table">
+                    <thead>
+                    <tr>
+                        <th>Barcode</th>
+                        <th>Copy #</th>
+                        <th>Condition</th>
+                        <th>Status</th>
+                        <th>Remarks</th>
+                        <th>Desk Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="copy : ${copies}">
+                        <td><code th:text="${copy.barcode}">BC-101-001</code></td>
+                        <td th:text="${'#' + copy.copyNumber}">#1</td>
+                        <td><span class="badge badge-info" th:text="${copy.conditionStatus}">GOOD</span></td>
+                        <td>
+                            <span class="badge"
+                                  th:classappend="${copy.availabilityStatus.name() == 'AVAILABLE' ? 'badge-success' : (copy.availabilityStatus.name() == 'BORROWED' ? 'badge-warning' : 'badge-danger')}"
+                                  th:text="${copy.availabilityStatus}">AVAILABLE</span>
+                        </td>
+                        <td th:text="${copy.remarks != null ? copy.remarks : '-'}">-</td>
+                        <td>
+                            <div class="d-flex gap-2" th:if="${copy.availabilityStatus.name() == 'AVAILABLE' || copy.availabilityStatus.name() == 'BORROWED'}">
+                                <form th:action="@{'/librarian/books/copies/' + ${copy.id} + '/mark-damaged'}" method="post" style="display:inline;">
+                                    <input type="hidden" name="bookId" th:value="${book.id}">
+                                    <button type="submit" class="btn btn-secondary btn-sm" style="color: #d97706;"
+                                            onclick="return confirm('Report this physical copy as damaged?')">
+                                        <i class="fa-solid fa-wrench"></i> Damaged
+                                    </button>
+                                </form>
+                                <form th:action="@{'/librarian/books/copies/' + ${copy.id} + '/mark-lost'}" method="post" style="display:inline;">
+                                    <input type="hidden" name="bookId" th:value="${book.id}">
+                                    <button type="submit" class="btn btn-secondary btn-sm" style="color: #dc2626;"
+                                            onclick="return confirm('Report this copy as lost?')">
+                                        <i class="fa-solid fa-circle-question"></i> Lost
+                                    </button>
+                                </form>
+                            </div>
+                            <span th:unless="${copy.availabilityStatus.name() == 'AVAILABLE' || copy.availabilityStatus.name() == 'BORROWED'}" style="color: #94a3b8; font-size: 0.8rem;">
+                                In Maintenance
+                            </span>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -90,5 +90,46 @@ class TestAnalyticsAndReports(BaseTestCase):
         updated_val = self.settings_svc.get_setting_value("default_fine_per_day")
         self.assertEqual(updated_val, "15.00")
 
+    def test_admin_reports_and_analytics_views(self):
+        """Verify rendering of all Reports & Analytics subtabs in web presentation layer."""
+        from smartlib.web.admin_reports import render_admin_reports_and_analytics
+        class DummyApp:
+            def __init__(self, db, metrics):
+                self.db_manager = db
+                self.metrics = metrics
+
+        dummy_app = DummyApp(self.db_manager, self.metrics)
+
+        # 1. Analytics tab
+        html_analytics = render_admin_reports_and_analytics(dummy_app, {"subtab": "analytics"})
+        self.assertIn("Monthly Borrowing Trends", html_analytics)
+        self.assertIn("Issue vs Return Comparison", html_analytics)
+        self.assertIn("Most Borrowed Books", html_analytics)
+        self.assertIn("Book Availability Analysis", html_analytics)
+        self.assertIn("Member Activity", html_analytics)
+        self.assertIn("Fine Collection Trends", html_analytics)
+        self.assertIn("₹", html_analytics)
+
+        # 2. Inventory tab
+        html_inv = render_admin_reports_and_analytics(dummy_app, {"subtab": "inventory"})
+        self.assertIn("Catalog Master Inventory", html_inv)
+        self.assertIn("Books by Category", html_inv)
+        self.assertIn("Books by Author", html_inv)
+        self.assertIn("Books by Publisher", html_inv)
+        self.assertIn("₹", html_inv)
+
+        # 3. Overdue tab
+        html_overdue = render_admin_reports_and_analytics(dummy_app, {"subtab": "overdue"})
+        self.assertIn("Overdue Circulation Ledger", html_overdue)
+        self.assertIn("Filter by Member", html_overdue)
+        self.assertIn("₹", html_overdue)
+
+        # 4. Financial tab
+        html_fin = render_admin_reports_and_analytics(dummy_app, {"subtab": "financial"})
+        self.assertIn("Fine Collections & Financial Ledger", html_fin)
+        self.assertIn("Total Fines Generated", html_fin)
+        self.assertIn("₹", html_fin)
+
 if __name__ == "__main__":
     unittest.main()
+

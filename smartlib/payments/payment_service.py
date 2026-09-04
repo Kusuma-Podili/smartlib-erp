@@ -16,6 +16,7 @@ class PaymentService:
         audit_svc: Optional[AuditService] = None
     ):
         self.payment_repo = payment_repo or PaymentRepository()
+        self.repo = self.payment_repo
         self.fine_repo = fine_repo or FineRepository()
         self.audit_svc = audit_svc or AuditService()
 

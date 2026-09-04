@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Authors Registry - SmartLibrary ERP</title>
+</head>
+<body>
+<div th:replace="~{layout/base :: div}" th:with="pageTitle='Authors Registry', activeMenu='admin-authors'">
+    <div th:fragment="content">
+        <div class="form-grid-2">
+            <!-- Left: Add Author Card -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><i class="fa-solid fa-user-pen"></i> Register New Author</div>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/admin/authors}" th:object="${authorDto}" method="post">
+                        <div class="form-grid-2">
+                            <div class="form-group">
+                                <label class="form-label">First Name *</label>
+                                <input type="text" th:field="*{firstName}" class="form-control" placeholder="Robert" required>
+                                <span class="text-danger" th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}"></span>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Last Name *</label>
+                                <input type="text" th:field="*{lastName}" class="form-control" placeholder="Martin" required>
+                                <span class="text-danger" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input type="email" th:field="*{email}" class="form-control" placeholder="author@domain.com">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Website</label>
+                            <input type="url" th:field="*{website}" class="form-control" placeholder="https://...">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Biography</label>
+                            <textarea th:field="*{biography}" class="form-control" rows="3" placeholder="Author background..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fa-solid fa-save"></i> Register Author
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Right: Authors Table -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><i class="fa-solid fa-feather-pointed"></i> Registered Authors</div>
+                </div>
+                <div class="table-responsive">
+                    <table class="erp-table">
+                        <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email / Web</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:if="${#lists.isEmpty(authors)}">
+                            <td colspan="2" style="text-align: center; color: #94a3b8; padding: 2rem;">No authors registered.</td>
+                        </tr>
+                        <tr th:each="auth : ${authors}">
+                            <td><strong th:text="${auth.getFullName()}">Robert C. Martin</strong></td>
+                            <td>
+                                <div th:if="${auth.email}" style="font-size: 0.8rem; color: #64748b;" th:text="${auth.email}"></div>
+                                <div th:if="${auth.website}" style="font-size: 0.75rem;"><a th:href="${auth.website}" target="_blank" th:text="${auth.website}"></a></div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>ERP Reports Center - SmartLibrary ERP</title>
+</head>
+<body>
+<div th:replace="~{layout/base :: div}" th:with="pageTitle='Executive Reports & Data Export Center', activeMenu='admin-reports'">
+    <div th:fragment="content">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem;">
+            <!-- Books Catalog Report -->
+            <div class="card">
+                <div class="card-body">
+                    <div style="font-size: 2rem; color: #1e3a8a; margin-bottom: 0.5rem;"><i class="fa-solid fa-book"></i></div>
+                    <h3 style="font-size: 1.15rem; font-weight: 700;">Catalog Inventory Master</h3>
+                    <p style="color: #64748b; font-size: 0.85rem; margin-bottom: 1.5rem;">
+                        Export complete repository of book titles, physical copies, shelf locations, and availability statuses.
+                    </p>
+                    <div class="d-flex gap-2">
+                        <a th:href="@{/admin/reports/books/csv}" class="btn btn-secondary btn-sm"><i class="fa-solid fa-file-csv"></i> Download CSV</a>
+                        <a th:href="@{/admin/reports/books/pdf}" class="btn btn-primary btn-sm"><i class="fa-solid fa-file-pdf"></i> Download PDF</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Circulation / Loans Report -->
+            <div class="card">
+                <div class="card-body">
+                    <div style="font-size: 2rem; color: #059669; margin-bottom: 0.5rem;"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                    <h3 style="font-size: 1.15rem; font-weight: 700;">Circulation & Loans Statement</h3>
+                    <p style="color: #64748b; font-size: 0.85rem; margin-bottom: 1.5rem;">
+                        Historical record of all issued, returned, and overdue loans with patron identifiers.
+                    </p>
+                    <div class="d-flex gap-2">
+                        <a th:href="@{/admin/reports/loans/csv}" class="btn btn-secondary btn-sm"><i class="fa-solid fa-file-csv"></i> Download CSV</a>
+                        <a th:href="@{/admin/reports/loans/pdf}" class="btn btn-primary btn-sm"><i class="fa-solid fa-file-pdf"></i> Download PDF</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Patron Registry Report -->
+            <div class="card">
+                <div class="card-body">
+                    <div style="font-size: 2rem; color: #6366f1; margin-bottom: 0.5rem;"><i class="fa-solid fa-users"></i></div>
+                    <h3 style="font-size: 1.15rem; font-weight: 700;">Patron & Membership Roster</h3>
+                    <p style="color: #64748b; font-size: 0.85rem; margin-bottom: 1.5rem;">
+                        Full roster of registered members, tiers, borrowing limits, account statuses, and contact details.
+                    </p>
+                    <div class="d-flex gap-2">
+                        <a th:href="@{/admin/reports/members/csv}" class="btn btn-secondary btn-sm"><i class="fa-solid fa-file-csv"></i> Download CSV</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fines & Cashier Report -->
+            <div class="card">
+                <div class="card-body">
+                    <div style="font-size: 2rem; color: #d97706; margin-bottom: 0.5rem;"><i class="fa-solid fa-indian-rupee-sign"></i></div>
+                    <h3 style="font-size: 1.15rem; font-weight: 700;">Fines & Revenue Reconciliation</h3>
+                    <p style="color: #64748b; font-size: 0.85rem; margin-bottom: 1.5rem;">
+                        Audit statement of all penalty assessments, payments collected, receipts issued, and waivers.
+                    </p>
+                    <div class="d-flex gap-2">
+                        <a th:href="@{/admin/reports/fines/csv}" class="btn btn-secondary btn-sm"><i class="fa-solid fa-file-csv"></i> Download CSV</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

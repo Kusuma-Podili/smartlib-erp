@@ -291,12 +291,24 @@ class DatabaseSeeder:
         self.db_manager.execute("UPDATE book_copies SET status = 'ISSUED' WHERE copy_id = 7;")
         self.db_manager.execute("UPDATE books SET available_copies = available_copies - 1, issued_copies = issued_copies + 1 WHERE book_id = 3;")
 
-        # Seed an overdue fine for John Patron ($15.00 unpaid)
+        # Seed overdue and damage fines for John Patron (unpaid)
         self.db_manager.execute(
             """INSERT OR IGNORE INTO fines 
             (fine_id, member_id, borrowing_id, fine_type, amount, paid_amount, balance_amount, status, reason)
-            VALUES (1, ?, 2, 'OVERDUE', 15.00, 0.00, 15.00, 'UNPAID', '4 days overdue on Designing Data-Intensive Applications');""",
+            VALUES (1, ?, 2, 'OVERDUE', 20.00, 0.00, 20.00, 'UNPAID', '4 days overdue on Designing Data-Intensive Applications');""",
             (john_id,)
+        )
+        self.db_manager.execute(
+            """INSERT OR IGNORE INTO fines 
+            (fine_id, member_id, borrowing_id, fine_type, amount, paid_amount, balance_amount, status, reason)
+            VALUES (3, ?, NULL, 'DAMAGED_BOOK', 35.00, 0.00, 35.00, 'UNPAID', 'Cover wear & minor binding damage assessment');""",
+            (john_id,)
+        )
+        self.db_manager.execute(
+            """INSERT OR IGNORE INTO fines 
+            (fine_id, member_id, borrowing_id, fine_type, amount, paid_amount, balance_amount, status, reason)
+            VALUES (4, ?, NULL, 'LATE_FEE', 15.00, 0.00, 15.00, 'UNPAID', '3 days late return penalty fee');""",
+            (ada_id,)
         )
 
         # Seed a paid fine with receipt for Grace Hopper

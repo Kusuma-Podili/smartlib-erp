@@ -16,6 +16,7 @@ class CopyService:
         audit_svc: Optional[AuditService] = None
     ):
         self.copy_repo = copy_repo or CopyRepository()
+        self.repo = self.copy_repo
         self.book_repo = book_repo or BookRepository()
         self.audit_svc = audit_svc or AuditService()
 

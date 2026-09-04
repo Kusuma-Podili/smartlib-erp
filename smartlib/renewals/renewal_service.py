@@ -22,6 +22,7 @@ class RenewalService:
         audit_svc: Optional[AuditService] = None
     ):
         self.renewal_repo = renewal_repo or RenewalRepository()
+        self.repo = self.renewal_repo
         self.borrow_repo = borrow_repo or BorrowingRepository()
         self.member_repo = member_repo or MemberRepository()
         self.tier_repo = tier_repo or MembershipTierRepository()

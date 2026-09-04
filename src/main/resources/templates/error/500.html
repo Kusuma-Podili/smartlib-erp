@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server Error (500) - SmartLibrary ERP</title>
+    <link rel="stylesheet" th:href="@{/css/erp-theme.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+<div class="auth-wrapper">
+    <div class="auth-card" style="text-align: center;">
+        <div style="font-size: 4rem; color: #dc2626; margin-bottom: 1rem;">
+            <i class="fa-solid fa-server"></i>
+        </div>
+        <h1 style="color: #0f172a; margin-bottom: 0.5rem;">500 - Server Error</h1>
+        <p style="color: #64748b; margin-bottom: 1.5rem;" th:text="${errorMessage != null ? errorMessage : 'An unexpected server error occurred.'}">
+            An unexpected error occurred.
+        </p>
+        <a th:href="@{/}" class="btn btn-primary w-100">
+            <i class="fa-solid fa-house"></i> Return to Home
+        </a>
+    </div>
+</div>
+</body>
+</html>

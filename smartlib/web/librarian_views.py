@@ -7,13 +7,13 @@ from smartlib.copies.models import BookCopyDTO
 from smartlib.constants import BookCopyCondition, PaymentMethod
 
 LIBRARIAN_MENU = [
-    ("overview", "Overview", "&#128202;", "/librarian/dashboard?tab=overview"),
-    ("members", "Member Management", "&#128101;", "/librarian/dashboard?tab=members"),
-    ("books", "Book Management", "&#128218;", "/librarian/dashboard?tab=books"),
-    ("transactions", "Transactions", "&#128257;", "/librarian/dashboard?tab=transactions"),
-    ("fines", "Fine Management", "&#128176;", "/librarian/dashboard?tab=fines"),
-    ("notifications", "Notifications", "&#128276;", "/librarian/dashboard?tab=notifications"),
-    ("reports", "Daily Reports", "&#128196;", "/librarian/dashboard?tab=reports"),
+    ("overview", "Overview", "", "/librarian/dashboard?tab=overview"),
+    ("members", "Member Management", "", "/librarian/dashboard?tab=members"),
+    ("books", "Book Management", "", "/librarian/dashboard?tab=books"),
+    ("transactions", "Transactions", "", "/librarian/dashboard?tab=transactions"),
+    ("fines", "Fine Management", "", "/librarian/dashboard?tab=fines"),
+    ("notifications", "Notifications", "", "/librarian/dashboard?tab=notifications"),
+    ("reports", "Daily Reports", "", "/librarian/dashboard?tab=reports"),
 ]
 
 class LibrarianViews:
@@ -57,21 +57,45 @@ class LibrarianViews:
             # 2. Issue Book
             elif action == "issue_book":
                 try:
-                    member_id = int(params.get("member_id"))
-                    copy_id = int(params.get("copy_id"))
-                    loan = self.app.issue_svc.issue_book(copy_id=copy_id, member_id=member_id, actor_username=user["username"])
-                    return self.app.redirect(start_response, "/librarian/dashboard?tab=transactions", f"Book issued! Due Date: {loan.due_date}")
+                    member_id_str = params.get("member_id")
+                    copy_id_str = params.get("copy_id")
+                    if not member_id_str or not copy_id_str:
+                        raise Exception("Please select a patron member and an available book copy.")
+                    member_id = int(member_id_str)
+                    copy_id = int(copy_id_str)
+                    copy = self.app.copy_svc.copy_repo.get_by_id(copy_id)
+                    if not copy:
+                        raise Exception("Selected physical copy could not be found.")
+                    lib = self.app.db_manager.fetch_one("SELECT librarian_id FROM librarians WHERE user_id = ?", (user["user_id"],))
+                    lib_id = lib["librarian_id"] if lib else None
+                    loan = self.app.issue_svc.issue_book(
+                        member_id=member_id,
+                        book_id=copy.book_id,
+                        copy_id=copy_id,
+                        librarian_id=lib_id,
+                        actor_username=user["username"]
+                    )
+                    return self.app.redirect(start_response, "/librarian/dashboard?tab=transactions", f"Book issued successfully! Due Date: {loan.due_date}")
                 except Exception as e:
                     return self.app.redirect(start_response, "/librarian/dashboard?tab=transactions", str(e), "error")
 
             # 3. Return Book
             elif action == "return_book":
                 try:
-                    borrowing_id = int(params.get("borrowing_id"))
+                    borrowing_id_str = params.get("borrowing_id")
+                    if not borrowing_id_str:
+                        raise Exception("Please select an active loan to return.")
+                    borrowing_id = int(borrowing_id_str)
                     cond_str = params.get("condition", "GOOD")
-                    condition = BookCopyCondition[cond_str]
-                    res = self.app.return_svc.return_book(borrowing_id=borrowing_id, condition=condition, actor_username=user["username"])
-                    fine_msg = f" (Overdue fine assessed: ${res.fine_amount:.2f})" if res.fine_amount > 0 else " (No overdue fine)"
+                    lib = self.app.db_manager.fetch_one("SELECT librarian_id FROM librarians WHERE user_id = ?", (user["user_id"],))
+                    lib_id = lib["librarian_id"] if lib else None
+                    ret_rec, overdue_fine = self.app.return_svc.process_return(
+                        borrowing_id=borrowing_id,
+                        condition_on_return=cond_str,
+                        librarian_id=lib_id,
+                        actor_username=user["username"]
+                    )
+                    fine_msg = f" (Overdue fine assessed: ₹{overdue_fine:.2f})" if overdue_fine > 0 else " (No overdue fine)"
                     return self.app.redirect(start_response, "/librarian/dashboard?tab=transactions", f"Book returned successfully!{fine_msg}")
                 except Exception as e:
                     return self.app.redirect(start_response, "/librarian/dashboard?tab=transactions", str(e), "error")
@@ -79,8 +103,21 @@ class LibrarianViews:
             # 4. Renew Book
             elif action == "renew_book":
                 try:
-                    borrowing_id = int(params.get("borrowing_id"))
-                    renewal = self.app.renew_svc.renew_loan(borrowing_id=borrowing_id, actor_username=user["username"])
+                    borrowing_id_str = params.get("borrowing_id")
+                    if not borrowing_id_str:
+                        raise Exception("Please select a borrowing record to renew.")
+                    borrowing_id = int(borrowing_id_str)
+                    loan = self.app.issue_svc.borrow_repo.get_by_id(borrowing_id)
+                    if not loan:
+                        raise Exception("Active loan not found.")
+                    lib = self.app.db_manager.fetch_one("SELECT librarian_id FROM librarians WHERE user_id = ?", (user["user_id"],))
+                    lib_id = lib["librarian_id"] if lib else None
+                    renewal = self.app.renew_svc.request_renewal(
+                        borrowing_id=borrowing_id,
+                        member_id=loan.member_id,
+                        librarian_id=lib_id,
+                        actor_username=user["username"]
+                    )
                     return self.app.redirect(start_response, "/librarian/dashboard?tab=transactions", f"Loan extended! New Due Date: {renewal.new_due_date}")
                 except Exception as e:
                     return self.app.redirect(start_response, "/librarian/dashboard?tab=transactions", str(e), "error")
@@ -88,12 +125,51 @@ class LibrarianViews:
             # 5. Record Fine Payment
             elif action == "record_payment":
                 try:
-                    fine_id = int(params.get("fine_id"))
-                    amount = float(params.get("amount"))
+                    fine_id_str = params.get("fine_id")
+                    if not fine_id_str:
+                        raise Exception("Please select an outstanding fine to process payment.")
+                    fine_id = int(fine_id_str)
+                    fine = self.app.fine_svc.fine_repo.get_by_id(fine_id)
+                    if not fine:
+                        raise Exception("Fine record not found.")
+                    raw_amount = float(params.get("amount") or fine.balance_amount)
+                    amount = min(raw_amount, fine.balance_amount)
+                    if amount <= 0:
+                        raise Exception("This fine has already been fully paid.")
                     pm = params.get("payment_method", "CASH")
-                    method = PaymentMethod[pm]
-                    payment = self.app.payment_svc.process_payment(fine_id=fine_id, amount=amount, payment_method=method, cashier_username=user["username"], actor_username=user["username"])
-                    return self.app.redirect(start_response, "/librarian/dashboard?tab=fines", f"Payment recorded! Receipt #{payment.receipt_number}")
+                    lib = self.app.db_manager.fetch_one("SELECT librarian_id FROM librarians WHERE user_id = ?", (user["user_id"],))
+                    lib_id = lib["librarian_id"] if lib else None
+                    payment = self.app.payment_svc.process_payment(
+                        fine_id=fine_id,
+                        amount=amount,
+                        payment_method=pm,
+                        librarian_id=lib_id,
+                        actor_username=user["username"]
+                    )
+                    return self.app.redirect(start_response, "/librarian/dashboard?tab=fines", f"Payment of ₹{amount:.2f} recorded! Receipt #{payment.receipt_number}")
+                except Exception as e:
+                    return self.app.redirect(start_response, "/librarian/dashboard?tab=fines", str(e), "error")
+
+            # 5b. Assess Fine
+            elif action == "assess_fine":
+                try:
+                    member_id_str = params.get("member_id")
+                    if not member_id_str:
+                        raise Exception("Please select a patron member to assess fine.")
+                    member_id = int(member_id_str)
+                    amount = float(params.get("amount") or 15.0)
+                    if amount <= 0:
+                        raise Exception("Fine amount must be greater than 0.")
+                    fine_type = params.get("fine_type", "OVERDUE")
+                    reason = params.get("reason", "Manual fine assessment")
+                    fine = self.app.fine_svc.assess_fine(
+                        member_id=member_id,
+                        amount=amount,
+                        fine_type=fine_type,
+                        reason=reason,
+                        actor_username=user["username"]
+                    )
+                    return self.app.redirect(start_response, "/librarian/dashboard?tab=fines", f"Fine #{fine.fine_id} of ₹{amount:.2f} assessed to patron successfully!")
                 except Exception as e:
                     return self.app.redirect(start_response, "/librarian/dashboard?tab=fines", str(e), "error")
 
@@ -149,7 +225,7 @@ class LibrarianViews:
             <div class="kpi-card"><div class="kpi-title">Pending Fines</div><div class="kpi-value" style="color:var(--danger);">{pending_fines}</div></div>
             <div class="kpi-card"><div class="kpi-title">Available Copies</div><div class="kpi-value" style="color:var(--success);">{k['available_copies']}</div></div>
             <div class="kpi-card"><div class="kpi-title">Total Patrons</div><div class="kpi-value">{k['total_members']}</div></div>
-            <div class="kpi-card"><div class="kpi-title">Collected Revenue</div><div class="kpi-value" style="color:var(--success);">${k['collected_fines']:.2f}</div></div>
+            <div class="kpi-card"><div class="kpi-title">Collected Revenue</div><div class="kpi-value" style="color:var(--success);">₹{k['collected_fines']:.2f}</div></div>
         </div>
         <div class="card">
             <h2>Current Active Checkouts</h2>
@@ -230,24 +306,24 @@ class LibrarianViews:
                 <td>Shelf {b.shelf_number}</td>
                 <td>{b.total_copies}</td>
                 <td><span class="badge badge-{'avail' if b.available_copies > 0 else 'overdue'}">{b.available_copies} Available</span></td>
-                <td>${b.price:.2f}</td>
+                <td>₹{b.price:.2f}</td>
             </tr>
         ''' for b in books)
 
         return f'''
         <div class="header-row"><h1>Book Inventory & Availability Verification</h1></div>
         <div class="card">
-            <h2>? Add Physical Copy to Title</h2>
+            <h2>Add Physical Copy to Title</h2>
             <form method="POST" action="/librarian/dashboard" style="display:flex;gap:1rem;align-items:flex-end;">
                 <input type="hidden" name="action" value="add_copy">
                 <div class="form-group" style="flex:1;"><label>Select Book</label><select name="book_id">{book_select_opts}</select></div>
-                <div class="form-group" style="width:150px;"><label>Acquisition Cost ($)</label><input type="number" step="0.50" name="cost" value="40.00"></div>
+                <div class="form-group" style="width:150px;"><label>Acquisition Cost (₹)</label><input type="number" step="0.50" name="cost" value="40.00"></div>
                 <button type="submit" class="btn btn-success" style="margin-bottom:0.85rem;">+ Add Copy & Barcode</button>
             </form>
         </div>
 
         <div class="card">
-            <h2>?? Master Book Catalog ({total} Books)</h2>
+            <h2>📚 Master Book Catalog ({total} Books)</h2>
             <form method="GET" action="/librarian/dashboard" class="search-bar">
                 <input type="hidden" name="tab" value="books">
                 <input type="text" name="q" value="{q}" placeholder="Search books by title, author, or ISBN...">
@@ -266,9 +342,9 @@ class LibrarianViews:
             WHERE c.status = 'AVAILABLE';
         """)
 
-        member_opts = "".join(f"<option value='{m['member_id']}'>{m['first_name']} {m['last_name']} ({m['member_code']})</option>" for m in members)
-        copy_opts = "".join(f"<option value='{c['copy_id']}'>{c['title']} - Barcode: {c['barcode']}</option>" for c in copies)
-        loan_opts = "".join(f"<option value='{l.borrowing_id}'>#{l.borrowing_id}: {l.book_title} -> {l.member_name} (Due: {l.due_date})</option>" for l in active_loans)
+        member_opts = "".join(f"<option value='{m['member_id']}'>{m['first_name']} {m['last_name']} ({m['member_code']})</option>" for m in members) or "<option value=''>No active members registered</option>"
+        copy_opts = "".join(f"<option value='{c['copy_id']}'>{c['title']} - Barcode: {c['barcode']}</option>" for c in copies) or "<option value=''>No copies currently available in stock</option>"
+        loan_opts = "".join(f"<option value='{l.borrowing_id}'>#{l.borrowing_id}: {l.book_title} -> {l.member_name} (Due: {l.due_date})</option>" for l in active_loans) or "<option value=''>No active circulation loans</option>"
 
         loan_rows = "".join(f'''
             <tr>
@@ -283,28 +359,32 @@ class LibrarianViews:
                     <form method="POST" action="/librarian/dashboard" style="display:inline;">
                         <input type="hidden" name="action" value="renew_book">
                         <input type="hidden" name="borrowing_id" value="{l.borrowing_id}">
-                        <button type="submit" class="btn btn-sm btn-secondary">Renew</button>
+                        <button type="submit" class="btn btn-sm btn-success">Renew</button>
                     </form>
                 </td>
             </tr>
         ''' for l in active_loans)
+
+        has_copies = len(copies) > 0
+        has_loans = len(active_loans) > 0
 
         return f'''
         <div class="header-row"><h1>Circulation Transactions Desk</h1></div>
 
         <div class="grid-2">
             <div class="card">
-                <h2>?? Issue Book (Checkout)</h2>
+                <h2>📖 Issue Book (Checkout)</h2>
                 <form method="POST" action="/librarian/dashboard">
                     <input type="hidden" name="action" value="issue_book">
                     <div class="form-group"><label>Patron Member *</label><select name="member_id">{member_opts}</select></div>
                     <div class="form-group"><label>Available Physical Copy *</label><select name="copy_id">{copy_opts}</select></div>
-                    <button type="submit" class="btn btn-success">Issue Book to Patron</button>
+                    <button type="submit" class="btn btn-success" {'disabled' if not has_copies else ''}>Issue Book to Patron</button>
+                    {'' if has_copies else '<p style="color:var(--text-muted);font-size:0.85rem;margin-top:0.5rem;">⚠️ No physical book copies are currently available in stock to issue.</p>'}
                 </form>
             </div>
 
             <div class="card">
-                <h2>?? Return Book (Checkin)</h2>
+                <h2>🔄 Return Book (Checkin)</h2>
                 <form method="POST" action="/librarian/dashboard">
                     <input type="hidden" name="action" value="return_book">
                     <div class="form-group"><label>Active Loan *</label><select name="borrowing_id">{loan_opts}</select></div>
@@ -316,7 +396,8 @@ class LibrarianViews:
                             <option value="DAMAGED">DAMAGED (Auto assesses repair fee)</option>
                         </select>
                     </div>
-                    <button type="submit" class="btn btn-primary">Process Return & Inspect</button>
+                    <button type="submit" class="btn btn-success" {'disabled' if not has_loans else ''}>Process Return & Inspect</button>
+                    {'' if has_loans else '<p style="color:var(--text-muted);font-size:0.85rem;margin-top:0.5rem;">ℹ️ There are currently no active loans to check in. Use the Issue Book form to check out books.</p>'}
                 </form>
             </div>
         </div>
@@ -333,18 +414,21 @@ class LibrarianViews:
             FROM fines f JOIN members m ON f.member_id = m.member_id 
             ORDER BY f.fine_id DESC;
         """)
+        members = self.app.db_manager.fetch_all("SELECT member_id, member_code, first_name, last_name FROM members WHERE status = 'ACTIVE' ORDER BY member_id ASC;")
+        member_opts = "".join(f"<option value='{m['member_id']}'>{m['first_name']} {m['last_name']} ({m['member_code']})</option>" for m in members) or "<option value=''>No active members registered</option>"
 
         unpaid_fines = [f for f in fines if f['status'] != 'PAID']
-        unpaid_opts = "".join(f"<option value='{f['fine_id']}'>Fine #{f['fine_id']}: {f['member_name']} - ${f['balance_amount']:.2f} ({f['fine_type']})</option>" for f in unpaid_fines)
+        unpaid_opts = "".join(f"<option value='{f['fine_id']}' data-bal='{f['balance_amount']:.2f}'>Fine #{f['fine_id']}: {f['member_name']} - ₹{f['balance_amount']:.2f} ({f['fine_type']})</option>" for f in unpaid_fines)
+        default_amt = f"{unpaid_fines[0]['balance_amount']:.2f}" if unpaid_fines else "15.00"
 
         fine_rows = "".join(f'''
             <tr>
                 <td>#{f['fine_id']}</td>
                 <td><strong>{f['member_name']}</strong> ({f['member_code']})</td>
                 <td>{f['fine_type']}</td>
-                <td>${f['amount']:.2f}</td>
-                <td>${f['paid_amount']:.2f}</td>
-                <td><strong style="color:var(--danger);">${f['balance_amount']:.2f}</strong></td>
+                <td>₹{f['amount']:.2f}</td>
+                <td>₹{f['paid_amount']:.2f}</td>
+                <td><strong style="color:var(--danger);">₹{f['balance_amount']:.2f}</strong></td>
                 <td><span class="badge badge-{'avail' if f['status'] == 'PAID' else 'overdue'}">{f['status']}</span></td>
             </tr>
         ''' for f in fines)
@@ -352,28 +436,57 @@ class LibrarianViews:
         return f'''
         <div class="header-row"><h1>Fine Management & Cashiering Desk</h1></div>
 
-        <div class="card">
-            <h2>?? Record Fine Payment & Issue Receipt</h2>
-            <form method="POST" action="/librarian/dashboard">
-                <input type="hidden" name="action" value="record_payment">
-                <div class="form-grid">
-                    <div class="form-group"><label>Outstanding Fine *</label><select name="fine_id">{unpaid_opts or "<option value=''>No outstanding unpaid fines</option>"}</select></div>
-                    <div class="form-group"><label>Payment Amount ($) *</label><input type="number" step="0.50" name="amount" value="10.00" min="0.50"></div>
-                    <div class="form-group"><label>Payment Method *</label>
-                        <select name="payment_method">
-                            <option value="CASH">CASH</option>
-                            <option value="UPI">UPI / Digital QR</option>
-                            <option value="CREDIT_CARD">CREDIT CARD</option>
-                            <option value="DEBIT_CARD">DEBIT CARD</option>
+        <div class="grid-2">
+            <div class="card">
+                <h2>⚡ Assess Fine to Patron</h2>
+                <form method="POST" action="/librarian/dashboard">
+                    <input type="hidden" name="action" value="assess_fine">
+                    <div class="form-group"><label>Patron Member *</label><select name="member_id">{member_opts}</select></div>
+                    <div class="form-grid">
+                        <div class="form-group"><label>Fine Type *</label>
+                            <select name="fine_type">
+                                <option value="OVERDUE">OVERDUE (Late return penalty)</option>
+                                <option value="DAMAGED_BOOK">DAMAGED_BOOK (Physical wear)</option>
+                                <option value="LOST_BOOK">LOST_BOOK (Replacement charge)</option>
+                                <option value="LATE_FEE">LATE_FEE (General delay)</option>
+                                <option value="PROCESSING_FEE">PROCESSING_FEE (Card/Service)</option>
+                            </select>
+                        </div>
+                        <div class="form-group"><label>Fine Amount (₹) *</label><input type="number" step="0.50" name="amount" value="20.00" min="1.00" required></div>
+                    </div>
+                    <div class="form-group"><label>Assessment Reason</label><input type="text" name="reason" value="Circulation policy penalty"></div>
+                    <button type="submit" class="btn btn-secondary">+ Assess Fine to Patron</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h2>💳 Record Fine Payment & Issue Receipt</h2>
+                <form method="POST" action="/librarian/dashboard">
+                    <input type="hidden" name="action" value="record_payment">
+                    <div class="form-group"><label>Outstanding Unpaid Fine *</label>
+                        <select name="fine_id" id="lib_fine_select" onchange="var b = this.options[this.selectedIndex].getAttribute('data-bal'); if(b) document.getElementById('lib_fine_amt').value = b;">
+                            {unpaid_opts or "<option value=''>No outstanding unpaid fines</option>"}
                         </select>
                     </div>
-                </div>
-                <button type="submit" class="btn btn-success">Process Payment & Generate Receipt</button>
-            </form>
+                    <div class="form-grid">
+                        <div class="form-group"><label>Payment Amount (₹) *</label><input type="number" id="lib_fine_amt" step="0.50" name="amount" value="{default_amt}" min="0.50" required></div>
+                        <div class="form-group"><label>Payment Method *</label>
+                            <select name="payment_method">
+                                <option value="CASH">CASH (Physical tender)</option>
+                                <option value="UPI">UPI / Digital QR</option>
+                                <option value="CREDIT_CARD">CREDIT CARD</option>
+                                <option value="DEBIT_CARD">DEBIT CARD</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-success" {'disabled' if not unpaid_fines else ''}>Process Payment & Generate Receipt</button>
+                    {'' if unpaid_fines else '<p style="color:var(--text-muted);font-size:0.85rem;margin-top:0.5rem;">ℹ️ There are no outstanding unpaid fines to settle. Use the Assess Fine form on the left to charge a patron.</p>'}
+                </form>
+            </div>
         </div>
 
         <div class="card">
-            <h2>Fines & Fee Ledger</h2>
+            <h2>Fines & Fee Ledger ({len(fines)} Total Entries)</h2>
             <table><thead><tr><th>Fine ID</th><th>Patron</th><th>Type</th><th>Assessed</th><th>Paid</th><th>Outstanding</th><th>Status</th></tr></thead><tbody>{fine_rows or "<tr><td colspan='7' class='empty-state'>No fines recorded.</td></tr>"}</tbody></table>
         </div>
         '''
@@ -406,14 +519,46 @@ class LibrarianViews:
     def render_reports(self):
         od = self.app.reports.generate_overdue_report()
         fin = self.app.reports.generate_financial_ledger_report()
+
+        od_th = "".join(f"<th>{h}</th>" for h in od["headers"])
+        od_tr = "".join("<tr>" + "".join(f"<td>{c}</td>" for c in row) + "</tr>" for row in od["rows"][:25])
+
+        fin_th = "".join(f"<th>{h}</th>" for h in fin["headers"])
+        fin_tr = "".join("<tr>" + "".join(f"<td>{c}</td>" for c in row) + "</tr>" for row in fin["rows"][:25])
+
+        import urllib.parse
+        od_uri = "data:text/csv;charset=utf-8," + urllib.parse.quote(od["csv"])
+        fin_uri = "data:text/csv;charset=utf-8," + urllib.parse.quote(fin["csv"])
+
         return f'''
-        <div class="header-row"><h1>Daily Operations Reports</h1></div>
-        <div class="card">
-            <h2>?? Daily Overdue Summary</h2>
-            <textarea readonly style="width:100%;height:130px;font-family:monospace;font-size:0.82rem;padding:0.5rem;background:#f8fafc;">{od['csv']}</textarea>
+        <div class="header-row">
+            <h1>Daily Operations Reports</h1>
+            <span style="font-size:0.9rem; color:var(--text-muted);">Real-time circulation logs & cashier ledger</span>
         </div>
+
         <div class="card">
-            <h2>?? Daily Cashier & Financial Ledger</h2>
-            <textarea readonly style="width:100%;height:130px;font-family:monospace;font-size:0.82rem;padding:0.5rem;background:#f8fafc;">{fin['csv']}</textarea>
+            <h2>
+                <span>⚠️ Daily Overdue Circulation Report ({len(od['rows'])} items)</span>
+                <a href="{od_uri}" download="daily_overdue_report.csv" class="btn btn-sm btn-success">📥 Export CSV</a>
+            </h2>
+            <div style="overflow-x:auto;">
+                <table>
+                    <thead><tr>{od_th}</tr></thead>
+                    <tbody>{od_tr or "<tr><td colspan='7' class='empty-state'>No overdue loans today.</td></tr>"}</tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>
+                <span>💰 Daily Cashier & Financial Ledger ({len(fin['rows'])} records)</span>
+                <a href="{fin_uri}" download="daily_financial_ledger.csv" class="btn btn-sm btn-success">📥 Export CSV</a>
+            </h2>
+            <div style="overflow-x:auto;">
+                <table>
+                    <thead><tr>{fin_th}</tr></thead>
+                    <tbody>{fin_tr or "<tr><td colspan='9' class='empty-state'>No financial ledger entries.</td></tr>"}</tbody>
+                </table>
+            </div>
         </div>
         '''

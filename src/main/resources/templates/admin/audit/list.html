@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Audit Logs - SmartLibrary ERP</title>
+</head>
+<body>
+<div th:replace="~{layout/base :: div}" th:with="pageTitle='System Audit Trail & Security Logs', activeMenu='admin-audit'">
+    <div th:fragment="content">
+        <!-- Filter Card -->
+        <div class="card mb-3">
+            <div class="card-body">
+                <form th:action="@{/admin/audit-logs}" method="get" class="d-flex gap-2">
+                    <input type="text" name="username" th:value="${selectedUser}" class="form-control"
+                           placeholder="Filter by actor username...">
+                    <input type="text" name="action" th:value="${selectedAction}" class="form-control"
+                           placeholder="Filter by action (e.g. BOOK_CREATED)...">
+                    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-magnifying-glass"></i> Filter</button>
+                    <a th:href="@{/admin/audit-logs}" class="btn btn-secondary">Reset</a>
+                </form>
+            </div>
+        </div>
+
+        <!-- Audit Table -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">Security & Transaction Audit Events (<span th:text="${totalElements}">0</span> total)</div>
+            </div>
+            <div class="table-responsive">
+                <table class="erp-table">
+                    <thead>
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>Actor</th>
+                        <th>Action</th>
+                        <th>Entity</th>
+                        <th>Entity ID</th>
+                        <th>IP Address</th>
+                        <th>Details</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:if="${#lists.isEmpty(logs)}">
+                        <td colspan="7" style="text-align: center; color: #94a3b8; padding: 2rem;">No audit logs recorded yet.</td>
+                    </tr>
+                    <tr th:each="log : ${logs}">
+                        <td style="font-size: 0.8rem; color: #64748b;" th:text="${log.timestamp}">2026-09-03 12:00</td>
+                        <td><strong th:text="${log.username}">admin</strong></td>
+                        <td><span class="badge badge-info" th:text="${log.action}">LOGIN</span></td>
+                        <td th:text="${log.entityName != null ? log.entityName : '-'}">Book</td>
+                        <td><code th:text="${log.entityId != null ? '#' + log.entityId : '-'}">#101</code></td>
+                        <td style="font-size: 0.8rem;" th:text="${log.ipAddress}">127.0.0.1</td>
+                        <td th:text="${log.description}">Action details</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

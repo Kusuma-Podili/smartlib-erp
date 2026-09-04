@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Fine Cashier - Circulation Desk - SmartLibrary ERP</title>
+</head>
+<body>
+<div th:replace="~{layout/base :: div}" th:with="pageTitle='Fine Collection & Cashier Desk', activeMenu='lib-fines'">
+    <div th:fragment="content">
+        <!-- Member Search Box -->
+        <div class="card mb-3">
+            <div class="card-body">
+                <form th:action="@{/librarian/fines}" method="get" class="d-flex gap-2">
+                    <input type="text" name="memberCode" th:value="${memberCode}" class="form-control"
+                           placeholder="Enter Patron Member Code (e.g. MEM-2026-0001)..." autofocus required>
+                    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-magnifying-glass"></i> Lookup Dues</button>
+                    <a th:href="@{/librarian/fines}" class="btn btn-secondary">Reset</a>
+                </form>
+            </div>
+        </div>
+
+        <div th:if="${member != null}">
+            <!-- Member Overview Card -->
+            <div class="card mb-4">
+                <div class="card-body d-flex justify-between align-center">
+                    <div>
+                        <h2 style="font-size: 1.3rem; font-weight: 700;" th:text="${member.user.getFullName()}">John Doe</h2>
+                        <p style="color: #64748b;">Member ID: <strong th:text="${member.memberCode}">MEM-2026-0001</strong> • Tier: <span th:text="${member.membershipType.name}">Student</span></p>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 0.8rem; color: #64748b; text-transform: uppercase; font-weight: 600;">Total Outstanding Balance</div>
+                        <div style="font-size: 2rem; font-weight: 700; color: #dc2626;" th:text="${'₹' + outstandingBalance}">₹50.00</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Unpaid Fines Table -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <div class="card-title"><i class="fa-solid fa-receipt"></i> Unpaid & Pending Penalty Assessments</div>
+                </div>
+                <div class="table-responsive">
+                    <table class="erp-table">
+                        <thead>
+                        <tr>
+                            <th>Fine ID</th>
+                            <th>Type</th>
+                            <th>Reason / Details</th>
+                            <th>Total Fine</th>
+                            <th>Paid So Far</th>
+                            <th>Balance Due</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:if="${#lists.isEmpty(unpaidFines)}">
+                            <td colspan="7" style="text-align: center; color: #059669; padding: 2rem;">
+                                <i class="fa-solid fa-circle-check" style="font-size: 2rem; display: block; margin-bottom: 0.5rem;"></i>
+                                No outstanding fines found for this member! Account is in good standing.
+                            </td>
+                        </tr>
+                        <tr th:each="fine : ${unpaidFines}">
+                            <td><code th:text="${'#' + fine.id}">#1</code></td>
+                            <td><span class="badge badge-warning" th:text="${fine.fineType}">LATE_RETURN</span></td>
+                            <td th:text="${fine.reason}">Overdue by 5 days</td>
+                            <td th:text="${'₹' + fine.amount}">₹50.00</td>
+                            <td th:text="${'₹' + fine.paidAmount}">₹0.00</td>
+                            <td><strong style="color: #dc2626;" th:text="${'₹' + fine.getOutstandingBalance()}">₹50.00</strong></td>
+                            <td>
+                                <div class="d-flex gap-2">
+                                    <!-- Collect Payment Form -->
+                                    <form th:action="@{/librarian/fines/pay}" method="post" class="d-flex gap-2">
+                                        <input type="hidden" name="memberCode" th:value="${member.memberCode}">
+                                        <input type="hidden" name="fineId" th:value="${fine.id}">
+                                        <input type="number" step="0.50" name="amountPaid" th:value="${fine.getOutstandingBalance()}"
+                                               th:max="${fine.getOutstandingBalance()}" class="form-control form-control-sm" style="width: 90px;" required>
+                                        <select name="paymentMethod" class="form-control form-control-sm" style="width: 90px;">
+                                            <option value="CASH">CASH</option>
+                                            <option value="UPI">UPI</option>
+                                            <option value="CARD">CARD</option>
+                                        </select>
+                                        <button type="submit" class="btn btn-primary btn-sm"><i class="fa-solid fa-coins"></i> Collect</button>
+                                    </form>
+                                    <!-- Waive Form -->
+                                    <form th:action="@{'/librarian/fines/' + ${fine.id} + '/waive'}" method="post">
+                                        <input type="hidden" name="memberCode" th:value="${member.memberCode}">
+                                        <button type="submit" class="btn btn-secondary btn-sm"
+                                                onclick="return confirm('Waive this fine penalty for member?')">
+                                            <i class="fa-solid fa-handshake-angle"></i> Waive
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

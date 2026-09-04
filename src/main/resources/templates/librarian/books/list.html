@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Catalog Search & Inventory - SmartLibrary ERP</title>
+</head>
+<body>
+<div th:replace="~{layout/base :: div}" th:with="pageTitle='Circulation Book Catalog', activeMenu='lib-books'">
+    <div th:fragment="content">
+        <div class="d-flex justify-between align-center mb-3">
+            <h2 style="font-size: 1.25rem; font-weight: 600;">Circulation Desk Catalog</h2>
+            <a th:href="@{/librarian/books/new}" class="btn btn-primary">
+                <i class="fa-solid fa-plus"></i> Catalog New Book
+            </a>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-body">
+                <form th:action="@{/librarian/books}" method="get" class="d-flex gap-2" style="flex-wrap: wrap;">
+                    <div style="flex: 2; min-width: 200px;">
+                        <input type="text" name="keyword" th:value="${keyword}" class="form-control"
+                               placeholder="Scan/Type ISBN, title or keyword...">
+                    </div>
+                    <div style="flex: 1; min-width: 160px;">
+                        <select name="categoryId" class="form-control">
+                            <option value="">All Categories</option>
+                            <option th:each="cat : ${categories}" th:value="${cat.id}"
+                                    th:text="${cat.name}" th:selected="${cat.id == categoryId}">Category</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
+                    <a th:href="@{/librarian/books}" class="btn btn-secondary"><i class="fa-solid fa-rotate-left"></i> Reset</a>
+                </form>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="table-responsive">
+                <table class="erp-table">
+                    <thead>
+                    <tr>
+                        <th>ISBN</th>
+                        <th>Title</th>
+                        <th>Author(s)</th>
+                        <th>Category</th>
+                        <th>Location</th>
+                        <th>Available Copies</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:if="${#lists.isEmpty(books)}">
+                        <td colspan="7" style="text-align: center; color: #94a3b8; padding: 2rem;">No books found matching search.</td>
+                    </tr>
+                    <tr th:each="book : ${books}">
+                        <td><code th:text="${book.isbn}">978-0132350884</code></td>
+                        <td><strong th:text="${book.title}">Clean Code</strong></td>
+                        <td th:text="${book.getAuthorsFormatted()}">Robert C. Martin</td>
+                        <td><span class="badge badge-info" th:text="${book.category?.name}">Software</span></td>
+                        <td th:text="${(book.shelfNumber != null ? book.shelfNumber : '-') + ' / ' + (book.rackNumber != null ? book.rackNumber : '-')}">S-1 / R-2</td>
+                        <td>
+                            <span class="badge" th:classappend="${book.getAvailableCopiesCount() > 0 ? 'badge-success' : 'badge-danger'}"
+                                  th:text="${book.getAvailableCopiesCount() + ' / ' + book.getTotalCopiesCount()}">3 / 5</span>
+                        </td>
+                        <td>
+                            <a th:href="@{'/librarian/books/' + ${book.id}}" class="btn btn-secondary btn-sm">
+                                <i class="fa-solid fa-barcode"></i> Manage Copies
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

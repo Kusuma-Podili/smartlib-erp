@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Member Detail - SmartLibrary ERP</title>
+</head>
+<body>
+<div th:replace="~{layout/base :: div}" th:with="pageTitle='Member Profile Management', activeMenu='admin-members'">
+    <div th:fragment="content">
+        <div class="d-flex justify-between align-center mb-3">
+            <a th:href="@{/admin/members}" class="btn btn-secondary btn-sm"><i class="fa-solid fa-arrow-left"></i> Back to Members</a>
+            <form th:action="@{'/admin/members/' + ${member.id} + '/toggle-status'}" method="post">
+                <button type="submit" class="btn" th:classappend="${member.user.isActive() ? 'btn-danger' : 'btn-success'}"
+                        onclick="return confirm('Are you sure you want to change this member status?')">
+                    <i class="fa-solid" th:classappend="${member.user.isActive() ? 'fa-user-slash' : 'fa-user-check'}"></i>
+                    <span th:text="${member.user.isActive() ? 'Deactivate Account' : 'Activate Account'}">Toggle</span>
+                </button>
+            </form>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-between align-center">
+                    <div>
+                        <h1 style="font-size: 1.5rem; font-weight: 700;" th:text="${member.user.getFullName()}">John Doe</h1>
+                        <p style="color: #64748b;">Member ID: <strong th:text="${member.memberCode}">MEM-2026-0001</strong> • Username: <code th:text="${member.user.username}">johndoe</code></p>
+                    </div>
+                    <span class="badge" th:classappend="${member.user.isActive() ? 'badge-success' : 'badge-danger'}"
+                          th:text="${member.user.status}">ACTIVE</span>
+                </div>
+
+                <div class="form-grid-3 mt-2" style="background: #f8fafc; padding: 1.25rem; border-radius: 6px; margin-top: 1rem;">
+                    <div><strong>Email:</strong> <span th:text="${member.user.email}">john@doe.com</span></div>
+                    <div><strong>Phone:</strong> <span th:text="${member.user.phone != null ? member.user.phone : '-'}">9876543210</span></div>
+                    <div><strong>Membership Tier:</strong> <span class="badge badge-info" th:text="${member.membershipType.name}">Student</span></div>
+                    <div><strong>Borrowing Limit:</strong> <span th:text="${member.membershipType.borrowingLimit + ' concurrent books'}">3 books</span></div>
+                    <div><strong>Max Loan Period:</strong> <span th:text="${member.membershipType.borrowDurationDays + ' days'}">14 days</span></div>
+                    <div><strong>Late Fine Rate:</strong> <span th:text="${'₹' + member.membershipType.finePerDay + ' / day'}">₹10.00 / day</span></div>
+                    <div><strong>Occupation:</strong> <span th:text="${member.occupation != null ? member.occupation : '-'}">Student</span></div>
+                    <div><strong>Address:</strong> <span th:text="${member.address != null ? member.address : '-'}">Campus Block B</span></div>
+                    <div><strong>Joined:</strong> <span th:text="${member.createdAt}">2026-09-03</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Membership Tenures Table -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title"><i class="fa-solid fa-clock-rotate-left"></i> Membership Subscriptions & Renewals</div>
+            </div>
+            <div class="table-responsive">
+                <table class="erp-table">
+                    <thead>
+                    <tr>
+                        <th>Tier</th>
+                        <th>Start Date</th>
+                        <th>Expiry Date</th>
+                        <th>Status</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="ms : ${member.memberships}">
+                        <td th:text="${ms.membershipType.name}">Student</td>
+                        <td th:text="${ms.startDate}">2026-01-01</td>
+                        <td th:text="${ms.expiryDate}">2027-01-01</td>
+                        <td>
+                            <span class="badge" th:classappend="${ms.status.name() == 'ACTIVE' && !ms.isExpired() ? 'badge-success' : 'badge-danger'}"
+                                  th:text="${ms.isExpired() ? 'EXPIRED' : ms.status}">ACTIVE</span>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

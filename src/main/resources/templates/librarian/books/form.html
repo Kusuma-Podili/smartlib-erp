@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Catalog Book - Librarian Desk - SmartLibrary ERP</title>
+</head>
+<body>
+<div th:replace="~{layout/base :: div}" th:with="pageTitle='Catalog New Book Title', activeMenu='lib-books'">
+    <div th:fragment="content">
+        <div class="card" style="max-width: 850px; margin: 0 auto;">
+            <div class="card-header">
+                <div class="card-title">Circulation Desk - Add Book Title</div>
+                <a th:href="@{/librarian/books}" class="btn btn-secondary btn-sm"><i class="fa-solid fa-arrow-left"></i> Back to Catalog</a>
+            </div>
+            <div class="card-body">
+                <form th:action="@{/librarian/books}" th:object="${bookDto}" method="post">
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label class="form-label">ISBN *</label>
+                            <input type="text" th:field="*{isbn}" class="form-control" placeholder="e.g. 9780132350884" required>
+                            <span class="text-danger" th:if="${#fields.hasErrors('isbn')}" th:errors="*{isbn}"></span>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Title *</label>
+                            <input type="text" th:field="*{title}" class="form-control" placeholder="Book title" required>
+                            <span class="text-danger" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label class="form-label">Category *</label>
+                            <select th:field="*{categoryId}" class="form-control" required>
+                                <option value="">-- Select Category --</option>
+                                <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}">Category</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Publisher *</label>
+                            <select th:field="*{publisherId}" class="form-control" required>
+                                <option value="">-- Select Publisher --</option>
+                                <option th:each="pub : ${publishers}" th:value="${pub.id}" th:text="${pub.name}">Publisher</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Author(s) *</label>
+                        <select th:field="*{authorIds}" multiple class="form-control" style="height: 100px;" required>
+                            <option th:each="auth : ${authors}" th:value="${auth.id}" th:text="${auth.getFullName()}">Author</option>
+                        </select>
+                    </div>
+
+                    <div class="form-grid-3">
+                        <div class="form-group">
+                            <label class="form-label">Publication Year</label>
+                            <input type="number" th:field="*{publicationYear}" class="form-control" placeholder="2024">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Initial Copies *</label>
+                            <input type="number" min="1" max="25" th:field="*{initialCopies}" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Unit Price (₹)</label>
+                            <input type="number" step="0.01" th:field="*{price}" class="form-control" placeholder="500.00">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa-solid fa-save"></i> Save & Generate Barcodes
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Executive Admin Dashboard - SmartLibrary ERP</title>
+</head>
+<body>
+<div th:replace="~{layout/base :: div}" th:with="pageTitle='Executive Enterprise Dashboard', activeMenu='admin-dashboard'">
+    <div th:fragment="content">
+        <!-- Stat Cards Grid -->
+        <div class="stat-grid">
+            <div class="stat-card">
+                <div class="stat-info">
+                    <div class="stat-label">Catalog Titles</div>
+                    <div class="stat-value" th:text="${totalBooks != null ? totalBooks : '0'}">0</div>
+                </div>
+                <div class="stat-icon blue"><i class="fa-solid fa-book"></i></div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-info">
+                    <div class="stat-label">Available / Total Copies</div>
+                    <div class="stat-value" th:text="${availableCopies + ' / ' + totalCopies}">0 / 0</div>
+                </div>
+                <div class="stat-icon purple"><i class="fa-solid fa-boxes-stacked"></i></div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-info">
+                    <div class="stat-label">Active Members</div>
+                    <div class="stat-value" th:text="${activeMembers != null ? activeMembers : '0'}">0</div>
+                </div>
+                <div class="stat-icon green"><i class="fa-solid fa-users"></i></div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-info">
+                    <div class="stat-label">Overdue Loans</div>
+                    <div class="stat-value" th:text="${overdueLoans != null ? overdueLoans : '0'}">0</div>
+                </div>
+                <div class="stat-icon red"><i class="fa-solid fa-triangle-exclamation"></i></div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-info">
+                    <div class="stat-label">Pending Hold Queue</div>
+                    <div class="stat-value" th:text="${pendingReservations != null ? pendingReservations : '0'}">0</div>
+                </div>
+                <div class="stat-icon amber"><i class="fa-solid fa-clock"></i></div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-info">
+                    <div class="stat-label">Fines Revenue Collected</div>
+                    <div class="stat-value" th:text="${'₹' + (finesCollected != null ? finesCollected : '0.00')}">₹0.00</div>
+                </div>
+                <div class="stat-icon green"><i class="fa-solid fa-indian-rupee-sign"></i></div>
+            </div>
+        </div>
+
+        <!-- Quick Access Actions -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <div class="card-title"><i class="fa-solid fa-bolt"></i> Operations Quick Launch</div>
+            </div>
+            <div class="card-body d-flex gap-3" style="flex-wrap: wrap;">
+                <a th:href="@{/admin/books/new}" class="btn btn-primary"><i class="fa-solid fa-plus"></i> New Book Title</a>
+                <a th:href="@{/admin/reports}" class="btn btn-secondary"><i class="fa-solid fa-file-export"></i> ERP Reports Center</a>
+                <a th:href="@{/admin/audit-logs}" class="btn btn-secondary"><i class="fa-solid fa-fingerprint"></i> System Audit Logs</a>
+                <a th:href="@{/admin/settings}" class="btn btn-secondary"><i class="fa-solid fa-sliders"></i> System Policies</a>
+            </div>
+        </div>
+
+        <!-- Analytics Visualizations -->
+        <div class="form-grid-2 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><i class="fa-solid fa-chart-line"></i> Circulation Activity Trends</div>
+                </div>
+                <div class="card-body">
+                    <canvas id="circulationChart" height="200"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><i class="fa-solid fa-chart-pie"></i> Inventory Distribution</div>
+                </div>
+                <div class="card-body">
+                    <canvas id="inventoryChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chart.js CDN & Initialization Script -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+            document.addEventListener("DOMContentLoaded", function () {
+                const monthLabels = /*[[${monthLabels}]]*/ ['May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'];
+                const borrowTrends = /*[[${borrowTrends}]]*/ [12, 19, 15, 25, 22, 30];
+                const returnTrends = /*[[${returnTrends}]]*/ [8, 14, 12, 20, 18, 26];
+
+                const circCtx = document.getElementById('circulationChart');
+                if (circCtx) {
+                    new Chart(circCtx, {
+                        type: 'line',
+                        data: {
+                            labels: monthLabels,
+                            datasets: [
+                                {
+                                    label: 'Books Borrowed',
+                                    data: borrowTrends,
+                                    borderColor: '#1e3a8a',
+                                    backgroundColor: 'rgba(30, 58, 138, 0.1)',
+                                    tension: 0.3,
+                                    fill: true
+                                },
+                                {
+                                    label: 'Books Returned',
+                                    data: returnTrends,
+                                    borderColor: '#059669',
+                                    backgroundColor: 'rgba(5, 150, 105, 0.1)',
+                                    tension: 0.3,
+                                    fill: true
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: { position: 'top' }
+                            }
+                        }
+                    });
+                }
+
+                const available = /*[[${availableCopies}]]*/ 10;
+                const issued = /*[[${issuedCopies}]]*/ 5;
+                const invCtx = document.getElementById('inventoryChart');
+                if (invCtx) {
+                    new Chart(invCtx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Available on Shelf', 'Currently Loaned Out'],
+                            datasets: [{
+                                data: [available, issued],
+                                backgroundColor: ['#059669', '#3b82f6'],
+                                borderWidth: 0
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: { position: 'bottom' }
+                            }
+                        }
+                    });
+                }
+            });
+            /*]]>*/
+        </script>
+    </div>
+</div>
+</body>
+</html>

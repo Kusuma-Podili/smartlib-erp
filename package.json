@@ -1,0 +1,12 @@
+{
+  "name": "smartlib-erp",
+  "version": "1.0.0",
+  "description": "SmartLibrary ERP Web Portal and Kiosk UI Assets",
+  "main": "run_server.py",
+  "scripts": {
+    "start": "python run_server.py 8000",
+    "test": "python -m unittest discover -s tests -p \"test_*.py\""
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

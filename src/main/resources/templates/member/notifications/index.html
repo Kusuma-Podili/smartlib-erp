@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Notifications - SmartLibrary ERP</title>
+</head>
+<body>
+<div th:replace="~{layout/base :: div}" th:with="pageTitle='My Notification Inbox', activeMenu='mem-notifications'">
+    <div th:fragment="content">
+        <div class="card" style="max-width: 850px; margin: 0 auto;">
+            <div class="card-header">
+                <div class="card-title">
+                    <i class="fa-solid fa-bell"></i> Alerts & System Notices
+                    <span th:if="${unreadCount > 0}" class="badge badge-danger" th:text="${unreadCount + ' unread'}">0 unread</span>
+                </div>
+                <form th:action="@{/member/notifications/read-all}" method="post" th:if="${unreadCount > 0}">
+                    <button type="submit" class="btn btn-secondary btn-sm"><i class="fa-solid fa-check-double"></i> Mark All as Read</button>
+                </form>
+            </div>
+            <div class="card-body">
+                <div th:if="${#lists.isEmpty(notifications)}" style="text-align: center; color: #94a3b8; padding: 3rem;">
+                    <i class="fa-solid fa-bell-slash" style="font-size: 2.5rem; display: block; margin-bottom: 0.75rem;"></i>
+                    You have no notifications in your inbox.
+                </div>
+
+                <div th:each="n : ${notifications}" style="border-bottom: 1px solid #e2e8f0; padding: 1rem 0; display: flex; justify-content: space-between; align-items: flex-start;"
+                     th:styleappend="${!n.read} ? 'background: #eff6ff; border-radius: 6px; padding: 1rem; margin-bottom: 0.5rem;' : ''">
+                    <div style="flex: 1;">
+                        <div class="d-flex align-center gap-2 mb-1">
+                            <span class="badge" th:classappend="${n.type.name() == 'OVERDUE_ALERT' ? 'badge-danger' : (n.type.name() == 'RESERVATION_READY' ? 'badge-success' : 'badge-info')}"
+                                  th:text="${n.type}">TYPE</span>
+                            <strong th:text="${n.title}">Notification Title</strong>
+                            <span style="font-size: 0.75rem; color: #94a3b8;" th:text="${n.createdAt}">Date</span>
+                        </div>
+                        <p style="font-size: 0.875rem; color: #334155; margin-bottom: 0.5rem;" th:text="${n.message}">Body</p>
+                        <a th:if="${n.linkUrl}" th:href="${n.linkUrl}" class="btn btn-secondary btn-sm" style="font-size: 0.75rem;">
+                            View Details <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                    </div>
+                    <form th:action="@{'/member/notifications/' + ${n.id} + '/read'}" method="post" th:if="${!n.read}">
+                        <button type="submit" class="btn btn-secondary btn-sm" title="Mark Read"><i class="fa-solid fa-check"></i></button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
