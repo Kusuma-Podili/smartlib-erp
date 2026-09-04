@@ -29,6 +29,9 @@ class BorrowingRecord:
     def is_active(self) -> bool:
         return self.status in (BorrowingStatus.ACTIVE.value, BorrowingStatus.OVERDUE.value)
 
+    def is_overdue(self) -> bool:
+        return self.status == BorrowingStatus.OVERDUE.value
+
     def to_dict(self) -> Dict[str, Any]:
         return {
             "borrowing_id": self.borrowing_id,

@@ -92,6 +92,20 @@ class BorrowingRepository:
         self.db_manager.execute(sql, (new_due_date, renewal_count, borrowing_id))
         self.db_manager.get_connection().commit()
 
+    def list_all_active(self) -> List[BorrowingRecord]:
+        sql = """
+        SELECT br.*, b.title as book_title, b.isbn, c.copy_number, c.barcode,
+               (m.first_name || ' ' || m.last_name) as member_name, m.member_code
+        FROM borrowings br
+        JOIN books b ON br.book_id = b.book_id
+        JOIN book_copies c ON br.copy_id = c.copy_id
+        JOIN members m ON br.member_id = m.member_id
+        WHERE br.status IN ('ACTIVE', 'OVERDUE')
+        ORDER BY br.due_date ASC;
+        """
+        rows = self.db_manager.fetch_all(sql)
+        return [BorrowingRecord(**dict(r)) for r in rows]
+
     def list_overdue_loans(self, as_of_date: str) -> List[BorrowingRecord]:
         sql = """
         SELECT br.*, b.title as book_title, b.isbn, c.copy_number, c.barcode,
